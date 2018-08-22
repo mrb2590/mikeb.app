@@ -1,25 +1,33 @@
 <template>
   <div class="loading">
     <div class="icon">
-      <md-progress-spinner md-mode="indeterminate"></md-progress-spinner>
+      <div class="icon-inner">
+        <md-progress-spinner md-mode="indeterminate"></md-progress-spinner>
+        <!-- <h1>Loading...</h1> -->
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import MainLayout from '../layouts/Main'
+import MainLayout from '@router/layouts/Main'
 
 export default {
   name: 'Loading',
 
+  page: {
+    title: 'Loading...',
+    meta: [
+      {
+        name: 'description',
+        content: 'Loading...'
+      }
+    ]
+  },
+
   created () {
     this.$emit('update:layout', MainLayout)
   }
-
-  // page: {
-  //   title: 'Loading page...',
-  //   meta: [{ name: 'description', content: 'Loading page...' }],
-  // },
 }
 </script>
 
@@ -33,6 +41,14 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+
+    .icon-inner {
+      text-align: center;
+
+      h1 {
+        font-size: 1em;
+      }
     }
   }
 </style>

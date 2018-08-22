@@ -1,6 +1,6 @@
 <template>
   <div class="main-layout">
-    <md-app>
+    <md-app md-mode="fixed">
       <md-app-toolbar class="md-primary">
         <md-button class="md-icon-button" @click="menuVisible = !menuVisible">
           <md-icon>menu</md-icon>
@@ -8,7 +8,7 @@
         <span class="md-title">MikeB App</span>
       </md-app-toolbar>
 
-      <md-app-drawer :md-active.sync="menuVisible">
+      <md-app-drawer :md-active.sync="menuVisible" class="md-scrollbar">
         <md-toolbar class="md-transparent" md-elevation="0">
           Navigation
         </md-toolbar>

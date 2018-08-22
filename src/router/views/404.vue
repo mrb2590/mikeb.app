@@ -11,10 +11,20 @@
 </template>
 
 <script>
-import MainLayout from '../layouts/Main'
+import MainLayout from '@router/layouts/Main'
 
 export default {
   name: 'Four0Four',
+
+  page: {
+    title: '404',
+    meta: [
+      {
+        name: 'description',
+        content: 'Page not found.'
+      }
+    ]
+  },
 
   created () {
     this.$emit('update:layout', MainLayout)
@@ -26,10 +36,6 @@ export default {
       default: ''
     }
   }
-  // page: {
-  //   title: '404',
-  //   meta: [{ name: 'description', content: '404' }],
-  // },
 }
 </script>
 

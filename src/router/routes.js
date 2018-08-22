@@ -1,15 +1,15 @@
-// import store from '../state/store'
+// import store from '@state/store'
 
 export default [
   {
     path: '/',
     name: 'home',
-    component: () => lazyLoadView(import('./views/Home'))
+    component: () => lazyLoadView(import('@views/Home'))
   },
   {
     path: '/files',
     name: 'files',
-    component: () => lazyLoadView(import('./views/404'))
+    component: () => lazyLoadView(import('@views/404'))
   },
 
   // {
@@ -82,7 +82,7 @@ export default [
   {
     path: '/404',
     name: '404',
-    component: require('./views/404').default,
+    component: require('@views/404').default,
     // Allows props to be passed to the 404 page through route
     // params, such as `resource` to define what wasn't found.
     props: true
@@ -114,10 +114,10 @@ function lazyLoadView (AsyncView) {
   const AsyncHandler = () => ({
     component: AsyncView,
     // A component to use while the component is loading.
-    loading: require('./views/Loading').default,
+    loading: require('@views/Loading').default,
     // A fallback component in case the timeout is exceeded
     // when loading the component.
-    error: require('./views/Timeout').default,
+    error: require('@views/Timeout').default,
     // Delay before showing the loading component.
     // Default: 200 (milliseconds).
     delay: 0,

@@ -7,10 +7,18 @@
 </template>
 
 <script>
-// import appConfig from '@src/app.config'
+import appConfig from './app.config'
 
 export default {
   name: 'App',
+
+  page: {
+    // All subcomponent titles will be injected into this template.
+    titleTemplate (title) {
+      title = typeof title === 'function' ? title(this.$store) : title
+      return title ? `${title} | ${appConfig.title}` : appConfig.title
+    }
+  },
 
   mounted () {
     console.log(`ENV: ${process.env.NODE_ENV}`)
@@ -22,13 +30,6 @@ export default {
       layout: 'div'
     }
   }
-  // page: {
-  //   // All subcomponent titles will be injected into this template.
-  //   titleTemplate(title) {
-  //     title = typeof title === 'function' ? title(this.$store) : title
-  //     return title ? `${title} | ${appConfig.title}` : appConfig.title
-  //   },
-  // }
 }
 </script>
 
@@ -50,7 +51,8 @@ export default {
 // Default theme
 @include md-register-theme("default", (
     primary: md-get-palette-color(blue, A200), // The primary color of your application
-    accent: md-get-palette-color(green, A200) // The accent or secondary color
+    accent: md-get-palette-color(green, A200), // The accent or secondary color
+    theme: light
 ));
 
 // Dark theme
