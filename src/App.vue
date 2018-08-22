@@ -66,7 +66,7 @@ export default {
 @import "~vue-material/dist/theme/all"; // Apply the theme
 
 // Design variables and utilities from src/design.
-@import './design/index';
+@import '@design';
 
 html, body, #app {
   height: 100vh;

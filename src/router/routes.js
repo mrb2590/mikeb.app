@@ -11,22 +11,21 @@ export default [
     name: 'files',
     component: () => lazyLoadView(import('@views/404'))
   },
-
-  // {
-  //   path: '/login',
-  //   name: 'login',
-  //   component: () => lazyLoadView(import('../src/router/views/login')),
-  //   beforeEnter(routeTo, routeFrom, next) {
-  //     // If the user is already logged in
-  //     if (store.getters['auth/loggedIn']) {
-  //       // Redirect to the home page instead
-  //       next({ name: 'home' })
-  //     } else {
-  //       // Continue to the login page
-  //       next()
-  //     }
-  //   },
-  // },
+  {
+    path: '/login',
+    name: 'login',
+    component: () => lazyLoadView(import('@views/Login'))
+    // beforeEnter(routeTo, routeFrom, next) {
+    //   // If the user is already logged in
+    //   if (store.getters['auth/loggedIn']) {
+    //     // Redirect to the home page instead
+    //     next({ name: 'home' })
+    //   } else {
+    //     // Continue to the login page
+    //     next()
+    //   }
+    // }
+  },
   // {
   //   path: '/profile',
   //   name: 'profile',
@@ -120,7 +119,7 @@ function lazyLoadView (AsyncView) {
     error: require('@views/Timeout').default,
     // Delay before showing the loading component.
     // Default: 200 (milliseconds).
-    delay: 0,
+    delay: 200,
     // Time before giving up trying to load the component.
     // Default: Infinity (milliseconds).
     timeout: 10000

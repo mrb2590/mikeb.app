@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import MainLayout from '@router/layouts/Main'
+import MainLayout from '@layouts/Main'
 
 export default {
   name: 'Loading',

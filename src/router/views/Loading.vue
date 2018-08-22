@@ -1,7 +1,7 @@
 <template>
-  <div class="loading">
-    <div class="icon">
-      <div class="icon-inner">
+  <div class="loading center-align-outer">
+    <div class="center-align-inner">
+      <div class="wrapper">
         <md-progress-spinner md-mode="indeterminate"></md-progress-spinner>
         <!-- <h1>Loading...</h1> -->
       </div>
@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import MainLayout from '@router/layouts/Main'
+import MainLayout from '@layouts/Main'
 
 export default {
   name: 'Loading',
@@ -32,23 +32,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .loading {
-    display: flex;
-    height: 100%;
+.wrapper {
+  text-align: center;
 
-    .icon {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .icon-inner {
-      text-align: center;
-
-      h1 {
-        font-size: 1em;
-      }
-    }
+  h1 {
+    font-size: 1em;
   }
+}
 </style>
