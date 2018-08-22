@@ -32,6 +32,11 @@
             <md-icon>file_copy</md-icon>
             <span class="md-list-item-text">Files</span>
           </md-list-item>
+
+          <md-list-item @click="menuVisible = !menuVisible" to="/profile">
+            <md-icon>account_circle</md-icon>
+            <span class="md-list-item-text">Profile</span>
+          </md-list-item>
         </md-list>
       </md-app-drawer>
 

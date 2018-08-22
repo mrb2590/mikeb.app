@@ -21,7 +21,7 @@ export default {
   },
 
   mounted () {
-    console.log(`ENV: ${process.env.NODE_ENV}`)
+    // console.log(`ENV: ${process.env.NODE_ENV}`)
   },
 
   data () {

@@ -1,4 +1,4 @@
-// import store from '@state/store'
+import store from '@state/store'
 
 export default [
   {
@@ -14,27 +14,27 @@ export default [
   {
     path: '/login',
     name: 'login',
-    component: () => lazyLoadView(import('@views/Login'))
-    // beforeEnter(routeTo, routeFrom, next) {
-    //   // If the user is already logged in
-    //   if (store.getters['auth/loggedIn']) {
-    //     // Redirect to the home page instead
-    //     next({ name: 'home' })
-    //   } else {
-    //     // Continue to the login page
-    //     next()
-    //   }
-    // }
+    component: () => lazyLoadView(import('@views/Login')),
+    beforeEnter(routeTo, routeFrom, next) {
+      // If the user is already logged in
+      if (store.getters['auth/loggedIn']) {
+        // Redirect to the home page instead
+        next({ name: 'home' })
+      } else {
+        // Continue to the login page
+        next()
+      }
+    }
   },
-  // {
-  //   path: '/profile',
-  //   name: 'profile',
-  //   component: () => lazyLoadView(import('../src/router/views/profile')),
-  //   meta: {
-  //     authRequired: true,
-  //   },
-  //   props: route => ({ user: store.state.auth.currentUser }),
-  // },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: () => lazyLoadView(import('@views/Profile')),
+    meta: {
+      authRequired: true
+    },
+    props: route => ({ user: store.state.auth.currentUser })
+  },
   // {
   //   path: '/profile/:username',
   //   name: 'username-profile',

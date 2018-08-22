@@ -42,6 +42,7 @@ import {
   email,
   minLength
 } from 'vuelidate/lib/validators'
+import { authMethods } from '@state/helpers'
 
 export default {
   name: 'Login',
@@ -63,8 +64,8 @@ export default {
       email: null,
       password: null
     },
-    userLoggedIn: false,
-    sending: false
+    sending: false,
+    sendingError: false
   }),
 
   validations: {
@@ -81,6 +82,8 @@ export default {
   },
 
   methods: {
+    ...authMethods,
+
     getValidationClass (fieldName) {
       const field = this.$v.form[fieldName]
 
@@ -100,14 +103,22 @@ export default {
     signIn () {
       this.sending = true
 
-      // Instead of this timeout, here you can call your API
-      window.setTimeout(() => {
-        this.email = this.form.email
-        this.userSaved = true
-        this.sending = false
-        this.clearForm()
-      }, 15000)
+      return this.logIn({
+        email: this.form.email,
+        password: this.form.password
+      })
+        .then(token => {
+          this.sending = false
+          this.clearForm()
+          // Redirect to the originally requested page, or to the home page
+          this.$router.push(this.$route.query.redirectFrom || { name: 'home' })
+        })
+        .catch(error => {
+          this.sending = false
+          this.sendingError = error
+        })
     },
+
     validateForm () {
       this.$v.$touch()
 

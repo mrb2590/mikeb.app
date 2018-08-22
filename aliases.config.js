@@ -1,6 +1,6 @@
 const path = require('path')
 
-function resolveSrc(_path) {
+function resolveSrc (_path) {
   return path.join(__dirname, _path)
 }
 
@@ -18,7 +18,7 @@ const aliases = {
 
 module.exports = {
   webpack: {},
-  jest: {},
+  jest: {}
 }
 
 for (const alias in aliases) {

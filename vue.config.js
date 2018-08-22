@@ -7,8 +7,8 @@ module.exports = {
     name: appConfig.title,
     // Set up all the aliases we use in our app.
     resolve: {
-      alias: require('./aliases.config').webpack,
-    },
+      alias: require('./aliases.config').webpack
+    }
   },
   baseUrl: process.env.BASE_URL,
   css: {
