@@ -41,11 +41,11 @@ export default [
       authRequired: true
     },
     beforeEnter (routeTo, routeFrom, next) {
-      store.dispatch('auth/logOut')
       const authRequiredOnPreviousRoute = routeFrom.matched.some(
         route => route.meta.authRequired
       )
       // Navigate back to previous page, or home as a fallback
+      store.dispatch('auth/logOut')
       next(authRequiredOnPreviousRoute ? { name: 'home' } : { ...routeFrom })
     }
   },

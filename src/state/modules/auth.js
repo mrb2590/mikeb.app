@@ -26,12 +26,16 @@ export const actions = {
   // starts, along with any other actions named `init` in other modules.
   init ({ state, dispatch }) {
     setDefaultAuthHeaders(state)
+    // this will end up being called twice if logged and load the app from a route
+    // that requires auth - do I need this?
     dispatch('validate')
   },
 
   // Logs in the current user.
   logIn ({ commit, dispatch, getters }, { email, password } = {}) {
     if (getters.loggedIn) return dispatch('validate')
+
+    this.commit('global/SET_FETCHING_TOKEN', true)
 
     return axios.post(`${apiUrl}/oauth/token`, {
       grant_type: 'password',
@@ -45,10 +49,12 @@ export const actions = {
         response.data.expires_on = computeExpiry(response.data.expires_in)
         const token = response.data
         commit('SET_USER_TOKEN', token)
+        this.commit('global/SET_FETCHING_TOKEN', false)
         this.dispatch('user/fetchUser')
         return token
       })
       .catch(error => {
+        this.commit('global/SET_FETCHING_TOKEN', false)
         if (error.response.status === 401) {
           console.log('Invalid credentials.')
         }
@@ -70,6 +76,7 @@ export const actions = {
     // If the token is expired, try to refresh it
     let date = new Date()
     if (date.getTime() >= state.userToken.expires_on) {
+      this.commit('global/SET_FETCHING_TOKEN', true)
       return axios.post(`${apiUrl}/oauth/token`, {
         grant_type: 'refresh_token',
         refresh_token: state.userToken.refresh_token,
@@ -81,10 +88,12 @@ export const actions = {
           response.data.expires_on = computeExpiry(response.data.expires_in)
           const token = response.data
           commit('SET_USER_TOKEN', token)
+          this.commit('global/SET_FETCHING_TOKEN', false)
           this.dispatch('user/fetchUser')
           return token
         })
         .catch(error => {
+          this.commit('global/SET_FETCHING_TOKEN', false)
           if (error.response.status === 401) {
             commit('SET_USER_TOKEN', null)
           }
