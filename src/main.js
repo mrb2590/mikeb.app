@@ -5,6 +5,7 @@ import store from '@state/store'
 import './registerServiceWorker'
 import VueMaterial from 'vue-material'
 import 'vue-material/dist/vue-material.min.css'
+import '@components/_globals'
 
 Vue.use(VueMaterial)
 

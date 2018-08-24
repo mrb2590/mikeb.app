@@ -19,3 +19,10 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.html [L]
 </IfModule>
+
+<IfModule mod_expires.c>
+    <FilesMatch "\.(jpe?g|png|gif|js|css|woff2)$">
+        ExpiresActive On
+        ExpiresDefault "access plus 1 week"
+    </FilesMatch>
+</IfModule>

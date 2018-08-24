@@ -12,7 +12,23 @@
           </div>
 
           <div class="md-toolbar-section-end">
-            <md-button to="/login">Sign In</md-button>
+            <md-button v-if="!loggedIn" to="/login">Sign In</md-button>
+            <md-menu v-if="loggedIn" md-size="medium" md-align-trigger>
+              <md-button class="md-icon-button" md-menu-trigger>
+                <md-icon>account_circle</md-icon>
+              </md-button>
+
+              <md-menu-content>
+                <md-menu-item to="/profile">
+                  <!-- <md-icon>account_circle</md-icon> -->
+                  Profile
+                </md-menu-item>
+                <md-menu-item to="/logout">
+                  <!-- <md-icon>account_circle</md-icon> -->
+                  Logout
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
           </div>
         </div>
       </md-app-toolbar>
@@ -32,11 +48,6 @@
             <md-icon>file_copy</md-icon>
             <span class="md-list-item-text">Files</span>
           </md-list-item>
-
-          <md-list-item @click="menuVisible = !menuVisible" to="/profile">
-            <md-icon>account_circle</md-icon>
-            <span class="md-list-item-text">Profile</span>
-          </md-list-item>
         </md-list>
       </md-app-drawer>
 
@@ -49,13 +60,17 @@
 
 <script>
 import AppName from '@components/AppName'
+import { authComputed } from '@state/helpers'
 
 export default {
   name: 'MainLayout',
-
   data: () => ({
     menuVisible: false
   }),
+
+  computed: {
+    ...authComputed
+  },
 
   components: { AppName }
 }

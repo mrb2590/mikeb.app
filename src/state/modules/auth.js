@@ -1,28 +1,23 @@
 import axios from 'axios'
 
+var apiUrl = process.env.VUE_APP_API_URL
+
 export const state = {
-  currentUser: {
-    profile: getSavedState('auth.currentUser.profile'),
-    token: getSavedState('auth.currentUser.token')
-  }
+  userToken: getSavedState('auth.userToken')
 }
 
 export const mutations = {
-  SET_CURRENT_USER_TOKEN (state, newValue) {
-    state.currentUser.token = newValue
-    saveState('auth.currentUser.token', newValue)
+  SET_USER_TOKEN (state, newValue) {
+    state.userToken = newValue
+    saveState('auth.userToken', newValue)
     setDefaultAuthHeaders(state)
-  },
-  SET_CURRENT_USER_PROFILE (state, newValue) {
-    state.currentUser.profile = newValue
-    saveState('auth.currentUser.profile', newValue)
   }
 }
 
 export const getters = {
   // Whether the user is currently logged in.
   loggedIn (state) {
-    return !!state.currentUser.token
+    return !!state.userToken
   }
 }
 
@@ -38,51 +33,68 @@ export const actions = {
   logIn ({ commit, dispatch, getters }, { email, password } = {}) {
     if (getters.loggedIn) return dispatch('validate')
 
-    return axios.post(`${process.env.VUE_APP_API_URL}/oauth/token`, {
+    return axios.post(`${apiUrl}/oauth/token`, {
       grant_type: 'password',
       username: email,
       password: password,
       client_id: process.env.VUE_APP_CLIENT_ID,
       client_secret: process.env.VUE_APP_CLIENT_SECRET,
       scope: '*'
-    }).then(response => {
-      const token = response.data
-      commit('SET_CURRENT_USER_TOKEN', token)
-      return token
     })
+      .then(response => {
+        response.data.expires_on = computeExpiry(response.data.expires_in)
+        const token = response.data
+        commit('SET_USER_TOKEN', token)
+        this.dispatch('user/fetchUser')
+        return token
+      })
+      .catch(error => {
+        if (error.response.status === 401) {
+          console.log('Invalid credentials.')
+        }
+        return null
+      })
   },
 
   // Logs out the current user.
   logOut ({ commit }) {
-    commit('SET_CURRENT_USER_TOKEN', null)
-    commit('SET_CURRENT_USER_PROFILE', null)
+    commit('SET_USER_TOKEN', null)
   },
 
   // Validates the current user's token and refreshes it
   // with new data from the API.
   validate ({ commit, state }) {
-    if (!state.currentUser.token) return Promise.resolve(null)
+    // Check if token is set
+    if (!state.userToken) return Promise.resolve(null)
 
-    return axios.post(`${process.env.VUE_APP_API_URL}/oauth/token`, {
-      grant_type: 'refresh_token',
-      refresh_token: state.currentUser.token.refresh_token,
-      client_id: process.env.VUE_APP_CLIENT_ID,
-      client_secret: process.env.VUE_APP_CLIENT_SECRET,
-      scope: '*'
-    })
-      .then(response => {
-        const token = response.data
-        commit('SET_CURRENT_USER_TOKEN', token)
-        commit('SET_CURRENT_USER_PROFILE', null)
-        return token
+    // If the token is expired, try to refresh it
+    let date = new Date()
+    if (date.getTime() >= state.userToken.expires_on) {
+      return axios.post(`${apiUrl}/oauth/token`, {
+        grant_type: 'refresh_token',
+        refresh_token: state.userToken.refresh_token,
+        client_id: process.env.VUE_APP_CLIENT_ID,
+        client_secret: process.env.VUE_APP_CLIENT_SECRET,
+        scope: '*'
       })
-      .catch(error => {
-        if (error.response.status === 401) {
-          commit('SET_CURRENT_USER_TOKEN', null)
-          commit('SET_CURRENT_USER_PROFILE', null)
-        }
-        return null
-      })
+        .then(response => {
+          response.data.expires_on = computeExpiry(response.data.expires_in)
+          const token = response.data
+          commit('SET_USER_TOKEN', token)
+          this.dispatch('user/fetchUser')
+          return token
+        })
+        .catch(error => {
+          if (error.response.status === 401) {
+            commit('SET_USER_TOKEN', null)
+          }
+          return null
+        })
+    }
+
+    // Otherwise token is set and should be valid
+    this.dispatch('user/fetchUser')
+    return state.userToken
   }
 }
 
@@ -100,7 +112,13 @@ function saveState (key, state) {
 
 function setDefaultAuthHeaders (state) {
   axios.defaults.headers.common.Accept = 'application/json'
-  axios.defaults.headers.common.Authorization = state.currentUser
-    ? state.currentUser.token
+  axios.defaults.headers.common.Authorization = state.userToken
+    ? `Bearer ${state.userToken.access_token}`
     : ''
+}
+
+// Set a timestamp for when the token expires
+function computeExpiry (expiresIn) {
+  let date = new Date()
+  return date.getTime() + (expiresIn * 1000 - 10000)
 }

@@ -1,13 +1,17 @@
 <template>
-  <div class="profile center-align-outer">
-    <div class="center-align-inner">
-      <span>your access token type is {{ user.token.token_type }}</span>
+  <div class="profile">
+    <BaseLoader v-if="!userProfile"/>
+    <div class="center-align-outer" v-if="userProfile">
+      <div class="center-align-inner">
+        <span>email: {{ userProfile.email }}</span>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import MainLayout from '@layouts/Main'
+import { userComputed } from '@state/helpers'
 
 export default {
   name: 'Profile',
@@ -22,11 +26,8 @@ export default {
     ]
   },
 
-  props: {
-    user: {
-      type: Object,
-      required: true,
-    },
+  computed: {
+    ...userComputed
   },
 
   created () {
@@ -35,5 +36,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+.profile {
+  height: 100%;
+}
 </style>

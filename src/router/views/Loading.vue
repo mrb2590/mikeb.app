@@ -1,12 +1,5 @@
 <template>
-  <div class="loading center-align-outer">
-    <div class="center-align-inner">
-      <div class="wrapper">
-        <md-progress-spinner md-mode="indeterminate"></md-progress-spinner>
-        <!-- <h1>Loading...</h1> -->
-      </div>
-    </div>
-  </div>
+  <BaseLoader/>
 </template>
 
 <script>
