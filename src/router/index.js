@@ -44,7 +44,7 @@ router.beforeEach((routeTo, routeFrom, next) => {
   if (!authRequired) return next()
 
   // Skip if we are already currently fetching a token
-  if (store.state.global.actions.fetchingToken) return next({ name: 'home' })
+  if (store.state.globalapp.actions.fetchingToken) return next({ name: 'home' })
 
   // If auth is required and the user is logged in...
   if (store.getters['auth/loggedIn']) {

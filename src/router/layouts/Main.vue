@@ -65,6 +65,7 @@ import { authComputed, userComputed } from '@state/helpers'
 
 export default {
   name: 'MainLayout',
+
   data: () => ({
     menuVisible: false
   }),

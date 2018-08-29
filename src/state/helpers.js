@@ -1,13 +1,13 @@
 import { mapState, mapGetters, mapActions } from 'vuex'
 
-export const globalComputed = {
-  ...mapState('global', {
-    global: state => state.global
+export const globalappComputed = {
+  ...mapState('globalapp', {
+    globalapp: state => state.globalapp
   }),
-  ...mapGetters('global', [])
+  ...mapGetters('globalapp', [])
 }
 
-export const globalMethods = mapActions('global', [])
+export const globalappMethods = mapActions('globalapp', [])
 
 export const authComputed = {
   ...mapState('auth', {
@@ -16,7 +16,7 @@ export const authComputed = {
   ...mapGetters('auth', ['loggedIn'])
 }
 
-export const authMethods = mapActions('auth', ['logIn', 'logOut'])
+export const authMethods = mapActions('auth', ['logIn', 'logOut', 'setStayLoggedIn'])
 
 export const userComputed = {
   ...mapState('user', {

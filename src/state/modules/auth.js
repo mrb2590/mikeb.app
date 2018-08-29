@@ -3,14 +3,21 @@ import axios from 'axios'
 var apiUrl = process.env.VUE_APP_API_URL
 
 export const state = {
-  userToken: getSavedState('auth.userToken')
+  userToken: null,
+  stayLoggedIn: getSavedState('auth.stayLoggedIn', 'local')
 }
 
 export const mutations = {
   SET_USER_TOKEN (state, newValue) {
     state.userToken = newValue
-    saveState('auth.userToken', newValue)
+    let storageType = state.stayLoggedIn ? 'local' : 'session'
+    saveState('auth.userToken', newValue, storageType)
     setDefaultAuthHeaders(state)
+  },
+
+  SET_STAY_LOGGED_IN (state, newValue) {
+    state.stayLoggedIn = newValue
+    saveState('auth.stayLoggedIn', newValue, 'local')
   }
 }
 
@@ -24,18 +31,27 @@ export const getters = {
 export const actions = {
   // This is automatically run in `src/state/store.js` when the app
   // starts, along with any other actions named `init` in other modules.
-  init ({ state, dispatch }) {
+  init ({ state, dispatch, commit }) {
     setDefaultAuthHeaders(state)
+
+    commit('SET_STAY_LOGGED_IN', state.stayLoggedIn ? state.stayLoggedIn : false)
+
+    if (state.stayLoggedIn) {
+      commit('SET_USER_TOKEN', getSavedState('auth.userToken', 'local'))
+    } else {
+      getSavedState('auth.userToken', 'session')
+    }
+
     // this will end up being called twice if logged and load the app from a route
     // that requires auth - do I need this?
     dispatch('validate')
   },
 
   // Logs in the current user.
-  logIn ({ commit, dispatch, getters }, { email, password } = {}) {
+  logIn ({ commit, dispatch, getters }, { email, password, stayLoggedIn } = {}) {
     if (getters.loggedIn) return dispatch('validate')
 
-    this.commit('global/SET_FETCHING_TOKEN', true)
+    this.commit('globalapp/SET_FETCHING_TOKEN', true)
 
     return axios.post(`${apiUrl}/oauth/token`, {
       grant_type: 'password',
@@ -49,22 +65,20 @@ export const actions = {
         response.data.expires_on = computeExpiry(response.data.expires_in)
         const token = response.data
         commit('SET_USER_TOKEN', token)
-        this.commit('global/SET_FETCHING_TOKEN', false)
+        this.commit('globalapp/SET_FETCHING_TOKEN', false)
         this.dispatch('user/fetchUser')
         return token
-      })
-      .catch(error => {
-        this.commit('global/SET_FETCHING_TOKEN', false)
-        if (error.response.status === 401) {
-          console.log('Invalid credentials.')
-        }
-        return null
       })
   },
 
   // Logs out the current user.
   logOut ({ commit }) {
     commit('SET_USER_TOKEN', null)
+  },
+
+  // Logs out the current user.
+  setStayLoggedIn ({ commit }, stayLoggedIn) {
+    commit('SET_STAY_LOGGED_IN', stayLoggedIn)
   },
 
   // Validates the current user's token and refreshes it
@@ -76,7 +90,7 @@ export const actions = {
     // If the token is expired, try to refresh it
     let date = new Date()
     if (date.getTime() >= state.userToken.expires_on) {
-      this.commit('global/SET_FETCHING_TOKEN', true)
+      this.commit('globalapp/SET_FETCHING_TOKEN', true)
       return axios.post(`${apiUrl}/oauth/token`, {
         grant_type: 'refresh_token',
         refresh_token: state.userToken.refresh_token,
@@ -88,12 +102,12 @@ export const actions = {
           response.data.expires_on = computeExpiry(response.data.expires_in)
           const token = response.data
           commit('SET_USER_TOKEN', token)
-          this.commit('global/SET_FETCHING_TOKEN', false)
+          this.commit('globalapp/SET_FETCHING_TOKEN', false)
           this.dispatch('user/fetchUser')
           return token
         })
         .catch(error => {
-          this.commit('global/SET_FETCHING_TOKEN', false)
+          this.commit('globalapp/SET_FETCHING_TOKEN', false)
           if (error.response.status === 401) {
             commit('SET_USER_TOKEN', null)
           }
@@ -111,12 +125,12 @@ export const actions = {
 // Private helpers
 // ===
 
-function getSavedState (key) {
-  return JSON.parse(window.localStorage.getItem(key))
+function getSavedState (key, type = 'local') {
+  return JSON.parse(window[`${type}Storage`].getItem(key))
 }
 
-function saveState (key, state) {
-  window.localStorage.setItem(key, JSON.stringify(state))
+function saveState (key, state, type = 'local') {
+  window[`${type}Storage`].setItem(key, JSON.stringify(state))
 }
 
 function setDefaultAuthHeaders (state) {

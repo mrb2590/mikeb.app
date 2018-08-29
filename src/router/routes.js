@@ -18,8 +18,8 @@ export default [
     beforeEnter (routeTo, routeFrom, next) {
       // If the user is already logged in
       if (store.getters['auth/loggedIn']) {
-        // Redirect to the home page instead
-        next({ name: 'home' })
+        // Redirect to the profile page instead
+        next({ name: 'profile' })
       } else {
         // Continue to the login page
         next()
@@ -46,7 +46,7 @@ export default [
       )
       // Navigate back to previous page, or home as a fallback
       store.dispatch('auth/logOut')
-      next(authRequiredOnPreviousRoute ? { name: 'home' } : { ...routeFrom })
+      next(authRequiredOnPreviousRoute ? { name: 'login' } : { ...routeFrom })
     }
   },
   {
@@ -90,7 +90,7 @@ function lazyLoadView (AsyncView) {
     error: require('@views/Timeout').default,
     // Delay before showing the loading component.
     // Default: 200 (milliseconds).
-    delay: 200,
+    delay: 0,
     // Time before giving up trying to load the component.
     // Default: Infinity (milliseconds).
     timeout: 10000

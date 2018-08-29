@@ -21,6 +21,10 @@
               <span class="md-error" v-if="!$v.form.password.required">The password is required</span>
               <span class="md-error" v-if="!$v.form.password.minLength">The password is too short</span>
             </md-field>
+            <md-switch v-model="stayLoggedIn" class="md-primary">Stay signed in</md-switch>
+            <div :class="{ visible: sendingError }" class="submitError">
+              {{ sendingError }}
+            </div>
           </md-card-content>
 
           <md-progress-bar md-mode="indeterminate" v-if="sending" />
@@ -42,7 +46,7 @@ import {
   email,
   minLength
 } from 'vuelidate/lib/validators'
-import { authMethods } from '@state/helpers'
+import { authMethods, authComputed } from '@state/helpers'
 
 export default {
   name: 'Login',
@@ -68,6 +72,17 @@ export default {
     sendingError: false
   }),
 
+  computed: {
+    stayLoggedIn: {
+      get () {
+        return this.$store.state.auth.stayLoggedIn
+      },
+      set (value) {
+        this.setStayLoggedIn(value)
+      }
+    }
+  },
+
   validations: {
     form: {
       email: {
@@ -83,6 +98,7 @@ export default {
 
   methods: {
     ...authMethods,
+    ...authComputed,
 
     getValidationClass (fieldName) {
       const field = this.$v.form[fieldName]
@@ -102,20 +118,26 @@ export default {
 
     signIn () {
       this.sending = true
+      this.sendingError = false
 
       return this.logIn({
         email: this.form.email,
-        password: this.form.password
+        password: this.form.password,
+        stayLoggedIn: this.stayLoggedIn
       })
         .then(token => {
           this.sending = false
           this.clearForm()
           // Redirect to the originally requested page, or to the home page
-          this.$router.push(this.$route.query.redirectFrom || { name: 'home' })
+          this.$router.push(this.$route.query.redirectFrom || { name: 'profile' })
         })
         .catch(error => {
           this.sending = false
-          this.sendingError = error
+          if (error.response.status === 401) {
+            this.sendingError = 'Access denied.'
+          } else {
+            this.sendingError = 'Something went wrong.'
+          }
         })
     },
 
@@ -130,12 +152,30 @@ export default {
 
   created () {
     this.$emit('update:layout', MainLayout)
-  }}
+  }
+}
 </script>
 
 <style lang="scss" scoped>
 .login-form {
   width: 100%;
   max-width: 400px;
+
+  .md-title, .md-subhead {
+    text-align: center;
+  }
+
+  .submitError {
+    opacity: 0;
+    cursor: default;
+    text-align: center;
+    margin-top: 10px;
+    color: var(--md-theme-default-fieldvariant, #ff1744);
+    text-selection: none;
+  }
+
+  .submitError.visible {
+    opacity: 1;
+  }
 }
 </style>
