@@ -1,14 +1,5 @@
 import { mapState, mapGetters, mapActions } from 'vuex'
 
-export const globalappComputed = {
-  ...mapState('globalapp', {
-    globalapp: state => state.globalapp
-  }),
-  ...mapGetters('globalapp', [])
-}
-
-export const globalappMethods = mapActions('globalapp', [])
-
 export const authComputed = {
   ...mapState('auth', {
     userToken: state => state.userToken
@@ -22,7 +13,7 @@ export const userComputed = {
   ...mapState('user', {
     userProfile: state => state.userProfile
   }),
-  ...mapGetters('user', [])
+  ...mapGetters('user', ['fullName', 'initials', 'formattedDates'])
 }
 
 export const userMethods = mapActions('user', [])

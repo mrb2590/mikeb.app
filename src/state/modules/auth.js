@@ -51,8 +51,6 @@ export const actions = {
   logIn ({ commit, dispatch, getters }, { email, password, stayLoggedIn } = {}) {
     if (getters.loggedIn) return dispatch('validate')
 
-    this.commit('globalapp/SET_FETCHING_TOKEN', true)
-
     return axios.post(`${apiUrl}/oauth/token`, {
       grant_type: 'password',
       username: email,
@@ -65,7 +63,6 @@ export const actions = {
         response.data.expires_on = computeExpiry(response.data.expires_in)
         const token = response.data
         commit('SET_USER_TOKEN', token)
-        this.commit('globalapp/SET_FETCHING_TOKEN', false)
         this.dispatch('user/fetchUser')
         return token
       })
@@ -90,7 +87,6 @@ export const actions = {
     // If the token is expired, try to refresh it
     let date = new Date()
     if (date.getTime() >= state.userToken.expires_on) {
-      this.commit('globalapp/SET_FETCHING_TOKEN', true)
       return axios.post(`${apiUrl}/oauth/token`, {
         grant_type: 'refresh_token',
         refresh_token: state.userToken.refresh_token,
@@ -102,12 +98,10 @@ export const actions = {
           response.data.expires_on = computeExpiry(response.data.expires_in)
           const token = response.data
           commit('SET_USER_TOKEN', token)
-          this.commit('globalapp/SET_FETCHING_TOKEN', false)
           this.dispatch('user/fetchUser')
           return token
         })
         .catch(error => {
-          this.commit('globalapp/SET_FETCHING_TOKEN', false)
           if (error.response.status === 401) {
             commit('SET_USER_TOKEN', null)
           }

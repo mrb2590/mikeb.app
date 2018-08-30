@@ -52,8 +52,10 @@
         </md-list>
       </md-app-drawer>
 
-      <md-app-content id="main-content">
-        <slot/>
+      <md-app-content class="main-content">
+        <transition name="fade">
+          <slot v-if="show"/>
+        </transition>
       </md-app-content>
     </md-app>
   </div>
@@ -67,6 +69,7 @@ export default {
   name: 'MainLayout',
 
   data: () => ({
+    show: false,
     menuVisible: false
   }),
 
@@ -75,7 +78,18 @@ export default {
     ...userComputed
   },
 
-  components: { AppName }
+  components: { AppName },
+
+  mounted () {
+    setTimeout(() => {
+      this.show = true
+    }, 1000)
+  },
+
+  beforeDestroy: () => {
+    // Clean up
+    this.show = false
+  }
 }
 </script>
 
@@ -88,6 +102,7 @@ export default {
     }
   }
 }
+
 .main-sidebar {
   width: 300px;
 
@@ -99,5 +114,22 @@ export default {
       height: 28px;
     }
   }
+}
+
+.main-content {
+  position: relative;
+}
+
+.fade-enter-active, .fade-leave-active {
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  margin-top: 15px;
+  margin-left: 15px;
+  transition: opacity .3s ease;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
 }
 </style>

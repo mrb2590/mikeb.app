@@ -43,9 +43,6 @@ router.beforeEach((routeTo, routeFrom, next) => {
   // If auth isn't required for the route, just continue.
   if (!authRequired) return next()
 
-  // Skip if we are already currently fetching a token
-  if (store.state.globalapp.actions.fetchingToken) return next({ name: 'home' })
-
   // If auth is required and the user is logged in...
   if (store.getters['auth/loggedIn']) {
     // Validate the local user token...
