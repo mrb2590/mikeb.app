@@ -1,0 +1,38 @@
+// Slide Fade
+.slide-fade-enter {
+  transform: translateY(50px);
+  opacity: 0;
+}
+
+.slide-fade-enter-active {
+  transition: all .3s ease;
+  position: fixed;
+  top: 80px;
+  left: 16px;
+  width: calc(100% - 32px);
+  height: calc(100vh - 96px);
+  overflow: hidden;
+}
+
+.slide-fade-leave-active {
+  transition: all .3s ease;
+  display: block;
+  overflow: hidden;
+}
+.slide-fade-leave-to {
+  transform: translateY(-50px);
+  opacity: 0;
+}
+
+// Fade
+.fade-enter-active {
+  transition: opacity .5s;
+}
+
+.fade-leave-active {
+  display: none;
+}
+
+.fade-enter {
+  opacity: 0;
+}

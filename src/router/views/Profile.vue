@@ -7,30 +7,35 @@
       <div class="md-layout md-layout-item md-size-50 md-xsmall-size-100">
 
         <div class="md-layout-item md-size-100 block">
-          <BaseLoader v-if="!userProfile"/>
-          <md-card v-if="userProfile">
-            <md-card-header>
-              <div class="md-title">
-                <md-avatar class="md-avatar-icon md-large md-accent">
-                  <md-ripple>{{ initials }}</md-ripple>
-                </md-avatar>
-                {{ fullName }}
-              </div>
-              <div class="md-subhead">{{ userProfile.slug }}</div>
-            </md-card-header>
+          <md-card>
+            <transition name="fade">
+              <BaseLoader v-if="!userProfile"/>
+            </transition>
+            <transition name="fade">
+              <md-card-header v-if="userProfile">
+                <div class="md-title">
+                  <md-avatar class="md-avatar-icon md-large md-accent">
+                    <md-ripple>{{ initials }}</md-ripple>
+                  </md-avatar>
+                  {{ fullName }}
+                </div>
+                <div class="md-subhead">{{ userProfile.slug }}</div>
+              </md-card-header>
+            </transition>
 
-            <md-card-content>
-              <ul class="md-block-1 info">
-                <li>Joined {{ formattedDates.created_at }}</li>
-                <li>Last updated on {{ formattedDates.updated_at }}</li>
-              </ul>
-            </md-card-content>
+            <transition name="fade">
+              <md-card-content v-if="userProfile">
+                <ul class="md-block-1 info">
+                  <li>Joined {{ formattedDates.created_at }}</li>
+                  <li>Last updated on {{ formattedDates.updated_at }}</li>
+                </ul>
+              </md-card-content>
+            </transition>
           </md-card>
         </div>
 
         <div class="md-layout-item md-size-100 block">
-          <BaseLoader v-if="!userProfile"/>
-          <md-card v-if="userProfile">
+          <md-card>
             <md-card-header>
               <div class="md-title">Update</div>
             </md-card-header>
@@ -54,8 +59,8 @@
               <div class="md-layout">
                 <div class="md-layout-item md-size-100">
                   <md-field>
-                    <label for="email">Email</label>
-                    <md-input type="email" name="email" id="email" autocomplete="email" />
+                    <label for="new-email">Email</label>
+                    <md-input type="email" name="new-email" id="new-email" autocomplete="email" />
                   </md-field>
                 </div>
               </div>
@@ -70,8 +75,7 @@
       <div class="md-layout md-layout-item md-size-50 md-xsmall-size-100">
 
         <div class="md-layout-item md-size-100 block settings">
-          <BaseLoader v-if="!userProfile"/>
-          <md-card v-if="userProfile">
+          <md-card >
             <md-card-header>
               <div class="md-title">Settings</div>
             </md-card-header>
@@ -142,6 +146,10 @@ export default {
 
   .md-card {
     margin: 0;
+
+    > .loading {
+      height: 200px;
+    }
 
     .info {
       margin-top: 20px;

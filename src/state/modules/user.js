@@ -9,7 +9,6 @@ export const state = {
 
 export const getters = {
   fullName (state) {
-    console.log(state.userProfile)
     return `${state.userProfile.first_name} ${state.userProfile.last_name}`
   },
 

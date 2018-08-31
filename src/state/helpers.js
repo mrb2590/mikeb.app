@@ -16,4 +16,13 @@ export const userComputed = {
   ...mapGetters('user', ['fullName', 'initials', 'formattedDates'])
 }
 
-export const userMethods = mapActions('user', [])
+export const settingsMethods = mapActions('settings', [])
+
+export const settingsComputed = {
+  ...mapState('settings', {
+    userProfile: state => state.settings
+  }),
+  ...mapGetters('settings', [])
+}
+
+export const userMethods = mapActions('settings', [])

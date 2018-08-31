@@ -41,16 +41,13 @@ export const actions = {
     } else {
       getSavedState('auth.userToken', 'session')
     }
-
-    // this will end up being called twice if logged and load the app from a route
-    // that requires auth - do I need this?
-    dispatch('validate')
   },
 
   // Logs in the current user.
   logIn ({ commit, dispatch, getters }, { email, password, stayLoggedIn } = {}) {
+    console.log(process.env.VUE_APP_DEBUG)
+    if (process.env.VUE_APP_DEBUG) console.log('called login')
     if (getters.loggedIn) return dispatch('validate')
-
     return axios.post(`${apiUrl}/oauth/token`, {
       grant_type: 'password',
       username: email,
@@ -60,10 +57,9 @@ export const actions = {
       scope: '*'
     })
       .then(response => {
-        response.data.expires_on = computeExpiry(response.data.expires_in)
+        response.data.expires_on = getTimestamp(response.data.expires_in)
         const token = response.data
         commit('SET_USER_TOKEN', token)
-        this.dispatch('user/fetchUser')
         return token
       })
   },
@@ -71,6 +67,7 @@ export const actions = {
   // Logs out the current user.
   logOut ({ commit }) {
     commit('SET_USER_TOKEN', null)
+    this.commit('user/SET_USER_PROFILE', null)
   },
 
   // Logs out the current user.
@@ -81,6 +78,7 @@ export const actions = {
   // Validates the current user's token and refreshes it
   // with new data from the API.
   validate ({ commit, state }) {
+    console.log('called validate')
     // Check if token is set
     if (!state.userToken) return Promise.resolve(null)
 
@@ -95,7 +93,7 @@ export const actions = {
         scope: '*'
       })
         .then(response => {
-          response.data.expires_on = computeExpiry(response.data.expires_in)
+          response.data.expires_on = getTimestamp(response.data.expires_in)
           const token = response.data
           commit('SET_USER_TOKEN', token)
           this.dispatch('user/fetchUser')
@@ -134,8 +132,8 @@ function setDefaultAuthHeaders (state) {
     : ''
 }
 
-// Set a timestamp for when the token expires
-function computeExpiry (expiresIn) {
+// Return a timestamp for when the token expires
+function getTimestamp (expiresIn) {
   let date = new Date()
   return date.getTime() + (expiresIn * 1000 - 10000)
 }

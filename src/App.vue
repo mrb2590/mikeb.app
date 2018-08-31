@@ -38,23 +38,27 @@ export default {
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic|Material+Icons");
 @import '~normalize.css/normalize.css';
 @import '~nprogress/nprogress.css';
+
 // Vue Material Theme
-@import '~vue-material/dist/vue-material.min.css';
 @import "~vue-material/dist/theme/engine"; // Import the theme engine
-// Default theme
+
+// // Default theme
 @include md-register-theme("default", (
     primary: md-get-palette-color(blue, A200), // The primary color of your application
     accent: md-get-palette-color(red, A200), // The accent or secondary color
     theme: light
 ));
+
 // Dark theme
 @include md-register-theme("dark", (
     primary: md-get-palette-color(blue, A200), // The primary color of your application
     accent: md-get-palette-color(red, A200), // The accent or secondary color
     theme: dark
 ));
+
 // Import themes
 @import "~vue-material/dist/theme/all"; // Apply the theme
+
 // Design variables and utilities from src/design.
 @import '@design';
 
@@ -80,5 +84,6 @@ html, body, #app {
 #nprogress .bar {
   background: $theme-secondary;
   top: 64px;
+  z-index: 500;
 }
 </style>
