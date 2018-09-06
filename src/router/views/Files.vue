@@ -11,7 +11,9 @@
               <div class="md-title">
                 {{ file.original_filename }}
               </div>
-              <div class="md-subhead">{{ file.size_readable }}</div>
+              <div class="md-subhead">
+                {{ file.extension }} - {{ file.size_readable }}
+              </div>
             </md-card-header>
 
             <md-card-content>
@@ -22,6 +24,13 @@
                 <li>Last Modified {{ formattedDates(file).updated_at }}</li>
               </ul>
             </md-card-content>
+
+            <md-card-actions>
+              <md-button class="md-icon-button md-raised md-primary" @click="download(file)">
+                <md-icon>cloud_download</md-icon>
+              </md-button>
+              <a href="#" v-bind:id="`file_${file.id}`" class="hidden-file-download"></a>
+            </md-card-actions>
           </md-card>
         </div>
       </div>
@@ -92,6 +101,10 @@ export default {
 
       .info {
         margin-top: 20px;
+      }
+
+      .hidden-file-download {
+        display: none !important;
       }
     }
   }

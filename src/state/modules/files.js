@@ -43,5 +43,45 @@ export const actions = {
         console.log('Could not fetch files.')
         console.log(error)
       })
+  },
+
+  download ({ commit, state }, file) {
+    return axios.get(`${apiUrl}/v1/files/${file.id}/download`, {
+      params: {
+        _: +new Date(),
+        encoded: 1
+      }
+    })
+      .then(response => {
+        let anchor = document.getElementById(`file_${file.id}`)
+        let blob = b64toBlob(response.data.file, file.mime_type)
+        let windowUrl = window.URL || window.webkitURL
+        let url = windowUrl.createObjectURL(blob)
+        anchor.setAttribute('href', url)
+        anchor.setAttribute('download', `${file.original_filename}.${file.extension}`)
+        anchor.click()
+      })
+      .catch(error => {
+        console.log('Could not download file.')
+        console.log(error)
+      })
   }
+}
+
+function b64toBlob (b64Data, contentType, sliceSize) {
+  contentType = contentType || ''
+  sliceSize = sliceSize || 512
+  var byteCharacters = atob(b64Data)
+  var byteArrays = []
+  for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    var slice = byteCharacters.slice(offset, offset + sliceSize)
+    var byteNumbers = new Array(slice.length)
+    for (var i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i)
+    }
+    var byteArray = new Uint8Array(byteNumbers)
+    byteArrays.push(byteArray)
+  }
+  var blob = new Blob(byteArrays, {type: contentType})
+  return blob
 }

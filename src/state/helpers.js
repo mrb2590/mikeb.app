@@ -34,4 +34,4 @@ export const filesComputed = {
   ...mapGetters('files', ['formattedDates'])
 }
 
-export const filesMethods = mapActions('files', ['fetchFiles'])
+export const filesMethods = mapActions('files', ['fetchFiles', 'download'])
