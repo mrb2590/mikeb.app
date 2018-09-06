@@ -21,7 +21,7 @@ export default {
   },
 
   mounted () {
-    // console.log(`ENV: ${process.env.NODE_ENV}`)
+    this.$material.theming.theme = this.$store.state.settings.theme
   },
 
   data () {
@@ -51,8 +51,8 @@ export default {
 
 // Dark theme
 @include md-register-theme("dark", (
-    primary: md-get-palette-color(blue, A200), // The primary color of your application
-    accent: md-get-palette-color(red, A200), // The accent or secondary color
+    primary: md-get-palette-color(green, A700), // The primary color of your application
+    accent: md-get-palette-color(blue, A200), // The accent or secondary color
     theme: dark
 ));
 
@@ -68,6 +68,9 @@ html, body, #app {
   font-family: 'Roboto', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: hidden
 }
 .md-app {
   height: 100vh;
@@ -78,6 +81,16 @@ html, body, #app {
 *::after {
   box-sizing: border-box;
 }
+
+.md-theme-dark input:-webkit-autofill {
+    -webkit-text-fill-color: #303030 !important;
+}
+
+.md-app-content.md-theme-dark,
+.md-app-scroller.md-theme-dark {
+  background-color: darken(#424242, 4%) !important;
+}
+
 // ===
 // Vendor
 // ===

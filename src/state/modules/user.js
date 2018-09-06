@@ -9,17 +9,23 @@ export const state = {
 
 export const getters = {
   fullName (state) {
-    return `${state.userProfile.first_name} ${state.userProfile.last_name}`
+    if (state.userProfile) {
+      return `${state.userProfile.first_name} ${state.userProfile.last_name}`
+    }
   },
 
   initials (state) {
-    return `${state.userProfile.first_name.charAt(0)}${state.userProfile.last_name.charAt(0)}`
+    if (state.userProfile) {
+      return `${state.userProfile.first_name.charAt(0)}${state.userProfile.last_name.charAt(0)}`
+    }
   },
 
   formattedDates (state) {
-    return {
-      created_at: moment(state.userProfile.created_at).format('MMMM Do, YYYY'),
-      updated_at: moment(state.userProfile.updated_at).format('MMMM Do, YYYY')
+    if (state.userProfile) {
+      return {
+        created_at: moment(state.userProfile.created_at).format('MMMM Do, YYYY'),
+        updated_at: moment(state.userProfile.updated_at).format('MMMM Do, YYYY')
+      }
     }
   }
 }

@@ -16,7 +16,7 @@ export const userComputed = {
   ...mapGetters('user', ['fullName', 'initials', 'formattedDates'])
 }
 
-export const settingsMethods = mapActions('settings', [])
+export const userMethods = mapActions('user', ['fetchUser'])
 
 export const settingsComputed = {
   ...mapState('settings', {
@@ -25,4 +25,13 @@ export const settingsComputed = {
   ...mapGetters('settings', [])
 }
 
-export const userMethods = mapActions('settings', [])
+export const settingsMethods = mapActions('settings', ['setTheme'])
+
+export const filesComputed = {
+  ...mapState('files', {
+    files: state => state.files
+  }),
+  ...mapGetters('files', [])
+}
+
+export const filesMethods = mapActions('files', ['fetchFiles'])

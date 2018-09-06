@@ -39,25 +39,19 @@ router.beforeEach((routeTo, routeFrom, next) => {
   // Check if auth is required on this route
   // (including nested routes).
   const authRequired = routeTo.matched.some(route => route.meta.authRequired)
-
-  // If auth isn't required for the route, just continue.
-  if (!authRequired) return next()
-
-  // If auth is required and the user is logged in...
-  if (store.getters['auth/loggedIn']) {
-    // Validate the local user token...
-    console.log('about to validate')
-    return store.dispatch('auth/validate').then(validUser => {
+  // Check if the user is already logged in and load their profille if so
+  if (store.getters['auth/loggedIn'] && !store.state.user.userProfile) {
+    store.dispatch('auth/validate').then(validUser => {
       console.log('after validate from beforeEach')
       // Then continue if the token still represents a valid user,
       // otherwise redirect to login.
-      validUser ? next() : redirectToLogin()
+      if (authRequired) {
+        validUser ? next() : redirectToLogin()
+      }
+      next()
     })
   }
-
-  // If auth is required and the user is NOT currently logged in,
-  // redirect to login.
-  redirectToLogin()
+  next()
 
   function redirectToLogin () {
     // Pass the original route to the login component

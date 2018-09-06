@@ -24,6 +24,7 @@ export const mutations = {
 export const getters = {
   // Whether the user is currently logged in.
   loggedIn (state) {
+    if (process.env.VUE_APP_DEBUG) console.log('Auth Store - Called getters.loggedIn')
     return !!state.userToken
   }
 }
@@ -32,21 +33,16 @@ export const actions = {
   // This is automatically run in `src/state/store.js` when the app
   // starts, along with any other actions named `init` in other modules.
   init ({ state, dispatch, commit }) {
+    if (process.env.VUE_APP_DEBUG) console.log('Auth Store - Called actions.init')
     setDefaultAuthHeaders(state)
-
     commit('SET_STAY_LOGGED_IN', state.stayLoggedIn ? state.stayLoggedIn : false)
-
-    if (state.stayLoggedIn) {
-      commit('SET_USER_TOKEN', getSavedState('auth.userToken', 'local'))
-    } else {
-      getSavedState('auth.userToken', 'session')
-    }
+    let storageType = state.stayLoggedIn ? 'local' : 'session'
+    commit('SET_USER_TOKEN', getSavedState('auth.userToken', storageType))
   },
 
   // Logs in the current user.
   logIn ({ commit, dispatch, getters }, { email, password, stayLoggedIn } = {}) {
-    console.log(process.env.VUE_APP_DEBUG)
-    if (process.env.VUE_APP_DEBUG) console.log('called login')
+    if (process.env.VUE_APP_DEBUG) console.log('Auth Store - Called actions.login')
     if (getters.loggedIn) return dispatch('validate')
     return axios.post(`${apiUrl}/oauth/token`, {
       grant_type: 'password',
@@ -57,6 +53,7 @@ export const actions = {
       scope: '*'
     })
       .then(response => {
+        if (process.env.VUE_APP_DEBUG) console.log('Auth Store - Called actions.login - promise')
         response.data.expires_on = getTimestamp(response.data.expires_in)
         const token = response.data
         commit('SET_USER_TOKEN', token)
@@ -66,25 +63,27 @@ export const actions = {
 
   // Logs out the current user.
   logOut ({ commit }) {
+    if (process.env.VUE_APP_DEBUG) console.log('Auth Store - Called actions.logout')
     commit('SET_USER_TOKEN', null)
     this.commit('user/SET_USER_PROFILE', null)
   },
 
   // Logs out the current user.
   setStayLoggedIn ({ commit }, stayLoggedIn) {
+    if (process.env.VUE_APP_DEBUG) console.log('Auth Store - Called actions.setStayLoggedIn')
     commit('SET_STAY_LOGGED_IN', stayLoggedIn)
   },
 
   // Validates the current user's token and refreshes it
   // with new data from the API.
   validate ({ commit, state }) {
-    console.log('called validate')
+    if (process.env.VUE_APP_DEBUG) console.log('Auth Store - Called actions.validate')
     // Check if token is set
     if (!state.userToken) return Promise.resolve(null)
-
     // If the token is expired, try to refresh it
     let date = new Date()
     if (date.getTime() >= state.userToken.expires_on) {
+      if (process.env.VUE_APP_DEBUG) console.log('Auth Store - Called actions.validate - token expired')
       return axios.post(`${apiUrl}/oauth/token`, {
         grant_type: 'refresh_token',
         refresh_token: state.userToken.refresh_token,
@@ -93,6 +92,7 @@ export const actions = {
         scope: '*'
       })
         .then(response => {
+          if (process.env.VUE_APP_DEBUG) console.log('Auth Store - Called actions.validate - token expired - promise')
           response.data.expires_on = getTimestamp(response.data.expires_in)
           const token = response.data
           commit('SET_USER_TOKEN', token)
@@ -100,6 +100,7 @@ export const actions = {
           return token
         })
         .catch(error => {
+          if (process.env.VUE_APP_DEBUG) console.log('Auth Store - Called actions.validate - token expired - promise catch')
           if (error.response.status === 401) {
             commit('SET_USER_TOKEN', null)
           }
@@ -108,6 +109,7 @@ export const actions = {
     }
 
     // Otherwise token is set and should be valid
+    if (process.env.VUE_APP_DEBUG) console.log('Auth Store - Called actions.validate - token valid')
     this.dispatch('user/fetchUser')
     return state.userToken
   }

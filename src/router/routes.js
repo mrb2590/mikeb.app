@@ -7,11 +7,6 @@ export default [
     component: () => lazyLoadView(import('@views/Home'))
   },
   {
-    path: '/files',
-    name: 'files',
-    component: () => lazyLoadView(import('@views/404'))
-  },
-  {
     path: '/login',
     name: 'login',
     component: () => lazyLoadView(import('@views/Login')),
@@ -30,6 +25,14 @@ export default [
     path: '/profile',
     name: 'profile',
     component: () => lazyLoadView(import('@views/Profile')),
+    meta: {
+      authRequired: true
+    }
+  },
+  {
+    path: '/files',
+    name: 'files',
+    component: () => lazyLoadView(import('@views/Files')),
     meta: {
       authRequired: true
     }

@@ -13,7 +13,7 @@
 
           <div class="md-toolbar-section-end right-navbar">
             <md-button v-if="!loggedIn" to="/login">Sign In</md-button>
-            <md-menu v-if="loggedIn" md-size="medium" md-align-trigger class="profile-menu">
+            <md-menu v-if="loggedIn" md-align-trigger class="profile-menu">
               <md-button md-menu-trigger class="profile-btn">
                 <span v-if="userProfile">{{ userProfile.first_name }}</span>
                 <md-icon>account_circle</md-icon>
@@ -21,7 +21,8 @@
 
               <md-menu-content>
                 <md-menu-item to="/logout">
-                  Logout
+                  <md-icon>exit_to_app</md-icon>
+                  <span>Logout</span>
                 </md-menu-item>
               </md-menu-content>
             </md-menu>
@@ -83,21 +84,14 @@
           </md-list-item>
         </md-list>
 
-        <md-list class="bottom-list">
+        <md-list>
           <md-divider></md-divider>
 
-          <md-list-item @click="$material.theming.theme = $material.theming.theme === 'dark' ? 'default' : 'dark'">
-            <md-icon>invert_colors</md-icon>
-            <span class="md-list-item-text">Theme</span>
+          <md-list-item class="md-no-proxy">
+            <md-switch v-model="darkMode" class="md-primary"></md-switch>
+            <span class="md-list-item-text">Dark Mode</span>
           </md-list-item>
         </md-list>
-
-<!--         <md-bottom-bar class="md-accent" md-type="shift">
-          <md-bottom-bar-item id="bottom-bar-item-home" md-label="Home" md-icon="home"></md-bottom-bar-item>
-          <md-bottom-bar-item id="bottom-bar-item-pages" md-label="Pages" md-icon="pages"></md-bottom-bar-item>
-          <md-bottom-bar-item id="bottom-bar-item-posts" md-label="Posts" md-icon="/assets/icon-whatshot.svg"></md-bottom-bar-item>
-          <md-bottom-bar-item id="bottom-bar-item-favorites" md-label="Favorites" md-icon="favorite"></md-bottom-bar-item>
-        </md-bottom-bar> -->
 
       </md-app-drawer>
 
@@ -124,7 +118,18 @@ export default {
 
   computed: {
     ...authComputed,
-    ...userComputed
+    ...userComputed,
+    darkMode: {
+      get () {
+        return this.$store.state.settings.theme === 'dark'
+      },
+      set (value) {
+        let theme = this.$material.theming.theme === 'dark' ? 'default' : 'dark'
+        this.$material.theming.theme = theme
+        this.$store.dispatch('settings/setTheme', theme)
+        return !value
+      }
+    }
   },
 
   components: { AppName },
@@ -143,32 +148,25 @@ export default {
 </script>
 
 <style lang="scss">
-  .right-navbar {
-    .profile-btn {
-      span {
-        margin-right: 10px;
-        text-transform: none;
-      }
+.right-navbar {
+  .profile-btn {
+    span {
+      margin-right: 10px;
+      text-transform: none;
     }
   }
+}
 
-  #app .main-sidebar {
-    width: 300px;
+#app .main-sidebar {
+  width: 300px;
 
-    .app-name {
-      .md-avatar {
-        font-size: 12px;
-        width: 28px;
-        min-width: 28px;
-        height: 28px;
-      }
-    }
-
-    .bottom-list {
-      position: absolute;
-      bottom: 0;
-      padding-bottom: 0;
-      width: 100%;
+  .app-name {
+    .md-avatar {
+      font-size: 12px;
+      width: 28px;
+      min-width: 28px;
+      height: 28px;
     }
   }
+}
 </style>
