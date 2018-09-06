@@ -18,6 +18,8 @@
               <ul class="md-block-1 info">
                 <li>Created by {{ file.created_by.first_name }} {{ file.created_by.last_name }}</li>
                 <li>Owned by {{ file.owned_by.first_name }} {{ file.owned_by.last_name }}</li>
+                <li>Uploaded {{ formattedDates(file).created_at }}</li>
+                <li>Last Modified {{ formattedDates(file).updated_at }}</li>
               </ul>
             </md-card-content>
           </md-card>

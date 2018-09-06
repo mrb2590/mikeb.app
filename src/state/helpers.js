@@ -31,7 +31,7 @@ export const filesComputed = {
   ...mapState('files', {
     files: state => state.files
   }),
-  ...mapGetters('files', [])
+  ...mapGetters('files', ['formattedDates'])
 }
 
 export const filesMethods = mapActions('files', ['fetchFiles'])
