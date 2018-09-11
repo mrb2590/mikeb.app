@@ -1,5 +1,6 @@
 import axios from 'axios'
 import moment from 'moment'
+import { b64toBlob } from '@state/functions'
 
 var apiUrl = process.env.VUE_APP_API_URL
 
@@ -25,11 +26,13 @@ export const mutations = {
 }
 
 export const actions = {
-  fetchFiles ({ commit, state }, page = 1, limit = 10) {
+  fetchFiles ({ commit, state }, { ownedById = null, parentId = 0, page = 1, limit = 25 }) {
     return axios.get(`${apiUrl}/v1/files`, {
       params: {
-        limit: limit,
-        page: page
+        owned_by_id: ownedById,
+        parent_id: parentId,
+        page: page,
+        limit: limit
       }
     })
       .then(response => {
@@ -45,7 +48,7 @@ export const actions = {
       })
   },
 
-  download ({ commit, state }, file) {
+  downloadFile ({ commit, state }, file) {
     return axios.get(`${apiUrl}/v1/files/${file.id}/download`, {
       params: {
         _: +new Date(),
@@ -58,7 +61,7 @@ export const actions = {
         let windowUrl = window.URL || window.webkitURL
         let url = windowUrl.createObjectURL(blob)
         anchor.setAttribute('href', url)
-        anchor.setAttribute('download', `${file.original_filename}.${file.extension}`)
+        anchor.setAttribute('download', response.data.filename)
         anchor.click()
       })
       .catch(error => {
@@ -66,22 +69,4 @@ export const actions = {
         console.log(error)
       })
   }
-}
-
-function b64toBlob (b64Data, contentType, sliceSize) {
-  contentType = contentType || ''
-  sliceSize = sliceSize || 512
-  var byteCharacters = atob(b64Data)
-  var byteArrays = []
-  for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-    var slice = byteCharacters.slice(offset, offset + sliceSize)
-    var byteNumbers = new Array(slice.length)
-    for (var i = 0; i < slice.length; i++) {
-      byteNumbers[i] = slice.charCodeAt(i)
-    }
-    var byteArray = new Uint8Array(byteNumbers)
-    byteArrays.push(byteArray)
-  }
-  var blob = new Blob(byteArrays, {type: contentType})
-  return blob
 }

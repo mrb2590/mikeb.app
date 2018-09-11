@@ -96,7 +96,7 @@ function lazyLoadView (AsyncView) {
     delay: 200,
     // Time before giving up trying to load the component.
     // Default: Infinity (milliseconds).
-    timeout: 10000
+    timeout: 100000
   })
 
   return Promise.resolve({

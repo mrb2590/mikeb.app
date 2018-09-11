@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getSavedState, saveState } from '@state/functions'
 
 var apiUrl = process.env.VUE_APP_API_URL
 
@@ -96,36 +97,30 @@ export const actions = {
           response.data.expires_on = getTimestamp(response.data.expires_in)
           const token = response.data
           commit('SET_USER_TOKEN', token)
-          this.dispatch('user/fetchUser')
-          return token
+          return this.dispatch('user/fetchUser').then(response => {
+            return true
+          })
         })
         .catch(error => {
           if (process.env.VUE_APP_DEBUG) console.log('Auth Store - Called actions.validate - token expired - promise catch')
           if (error.response.status === 401) {
             commit('SET_USER_TOKEN', null)
           }
-          return null
+          return false
         })
+    } else {
+      // Otherwise token is set and should be valid
+      if (process.env.VUE_APP_DEBUG) console.log('Auth Store - Called actions.validate - token valid')
+      return this.dispatch('user/fetchUser').then(response => {
+        return true
+      })
     }
-
-    // Otherwise token is set and should be valid
-    if (process.env.VUE_APP_DEBUG) console.log('Auth Store - Called actions.validate - token valid')
-    this.dispatch('user/fetchUser')
-    return state.userToken
   }
 }
 
 // ===
 // Private helpers
 // ===
-
-function getSavedState (key, type = 'local') {
-  return JSON.parse(window[`${type}Storage`].getItem(key))
-}
-
-function saveState (key, state, type = 'local') {
-  window[`${type}Storage`].setItem(key, JSON.stringify(state))
-}
 
 function setDefaultAuthHeaders (state) {
   axios.defaults.headers.common.Accept = 'application/json'

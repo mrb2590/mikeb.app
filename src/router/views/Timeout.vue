@@ -1,7 +1,5 @@
 <template>
-  <Layout>
-    <h1 class="title">The page timed out while loading</h1>
-  </Layout>
+  <h1 class="title">The page timed out while loading</h1>
 </template>
 
 <script>

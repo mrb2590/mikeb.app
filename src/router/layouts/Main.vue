@@ -157,15 +157,21 @@ export default {
   }
 }
 
-#app .main-sidebar {
+#app  {
+  .main-content {
+    overflow-x: hidden;
+  }
+
+  .main-sidebar {
   width: 300px;
 
-  .app-name {
-    .md-avatar {
-      font-size: 12px;
-      width: 28px;
-      min-width: 28px;
-      height: 28px;
+    .app-name {
+      .md-avatar {
+        font-size: 12px;
+        width: 28px;
+        min-width: 28px;
+        height: 28px;
+      }
     }
   }
 }

@@ -36,22 +36,20 @@ const router = new VueRouter({
 
 // Before each route evaluates...
 router.beforeEach((routeTo, routeFrom, next) => {
+  if (process.env.VUE_APP_DEBUG) console.log('Routes - Called beforeEach')
   // Check if auth is required on this route
   // (including nested routes).
   const authRequired = routeTo.matched.some(route => route.meta.authRequired)
-  // Check if the user is already logged in and load their profille if so
-  if (store.getters['auth/loggedIn'] && !store.state.user.userProfile) {
-    store.dispatch('auth/validate').then(validUser => {
-      console.log('after validate from beforeEach')
-      // Then continue if the token still represents a valid user,
-      // otherwise redirect to login.
-      if (authRequired) {
-        validUser ? next() : redirectToLogin()
-      }
-      next()
-    })
-  }
-  next()
+
+  store.dispatch('auth/validate').then(validUser => {
+    console.log('Route validate user')
+    // Then continue if the token still represents a valid user,
+    // otherwise redirect to login.
+    if (authRequired && !validUser) {
+      redirectToLogin()
+    }
+    next()
+  })
 
   function redirectToLogin () {
     // Pass the original route to the login component

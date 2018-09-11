@@ -1,3 +1,5 @@
+import { getSavedState, saveState } from '@state/functions'
+
 export const state = {
   theme: 'default'
 }
@@ -23,12 +25,4 @@ export const actions = {
   setTheme ({ state, commit }, theme = 'default') {
     commit('SET_THEME', theme)
   }
-}
-
-function getSavedState (key, type = 'local') {
-  return JSON.parse(window[`${type}Storage`].getItem(key))
-}
-
-function saveState (key, state, type = 'local') {
-  window[`${type}Storage`].setItem(key, JSON.stringify(state))
 }

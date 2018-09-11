@@ -41,8 +41,10 @@ export const actions = {
     if (state.userProfile) {
       return
     }
+    if (process.env.VUE_APP_DEBUG) console.log('User Store - Called actions.fetchUser')
     return axios.get(`${apiUrl}/v1/user`)
       .then(response => {
+        if (process.env.VUE_APP_DEBUG) console.log('User Store - Called actions.fetchUser - promise')
         const profile = response.data
         commit('SET_USER_PROFILE', profile)
         return profile
