@@ -5,8 +5,9 @@ import { b64toBlob } from '@state/functions'
 var apiUrl = process.env.VUE_APP_API_URL
 
 export const state = {
+  tree: null,
   folders: null,
-  parents: null
+  currentFolder: null
 }
 
 export const getters = {
@@ -21,36 +22,68 @@ export const getters = {
 }
 
 export const mutations = {
+  SET_TREE (state, newValue) {
+    state.tree = newValue
+  },
   SET_FOLDERS (state, newValue) {
     state.folders = newValue
   },
-  SET_PARENTS (state, newValue) {
-    state.parents = newValue
+  SET_CURRRENT_FOLDER (state, newValue) {
+    state.currentFolder = newValue
   }
 }
 
 export const actions = {
-  fetchFolders ({ commit, state }, {
-    ownedById = null, parentId = 0, withParents = false, page = 1, limit = 25
+  fetchTree ({ commit }, parentId = false) {
+    return axios.get(`${apiUrl}/v1/folders/${parentId}/tree`)
+      .then(response => {
+        commit('SET_TREE', response.data)
+        return response.data
+      })
+      .catch(error => {
+        if (error) {
+          commit('SET_TREE', null)
+        }
+        console.log('Could not fetch folder tree.')
+        console.log(error)
+      })
+  },
+
+  fetchFolders ({ commit }, {
+    ownedById = null, parentId = null, page = 1, limit = 25
   }) {
     return axios.get(`${apiUrl}/v1/folders`, {
       params: {
         owned_by_id: ownedById,
         parent_id: parentId,
-        with_parents: withParents,
         page: page,
         limit: limit
       }
     })
       .then(response => {
-        commit('SET_PARENTS', response.data.all_parents)
         commit('SET_FOLDERS', response.data.data)
         return response.data.data
       })
       .catch(error => {
         if (error) {
-          commit('SET_PARENTS', null)
           commit('SET_FOLDERS', null)
+        }
+        console.log('Could not fetch folders.')
+        console.log(error)
+      })
+  },
+
+  fetchFolder ({ commit }, { folderId, setCurrent = false }) {
+    return axios.get(`${apiUrl}/v1/folders/${folderId}`)
+      .then(response => {
+        if (setCurrent) {
+          commit('SET_CURRRENT_FOLDER', response.data)
+        }
+        return response.data
+      })
+      .catch(error => {
+        if (error && setCurrent) {
+          commit('SET_CURRRENT_FOLDER', null)
         }
         console.log('Could not fetch folders.')
         console.log(error)
