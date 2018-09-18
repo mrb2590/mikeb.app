@@ -38,13 +38,10 @@ export const filesMethods = mapActions('files', ['fetchFiles', 'downloadFile'])
 
 export const foldersComputed = {
   ...mapState('folders', {
-    tree: state => state.tree,
-    folders: state => state.folders,
-    currentFolder: state => state.currentFolder
+    folder: state => state.folder,
+    tree: state => state.tree
   }),
   ...mapGetters('folders', ['formattedDates'])
 }
 
-export const foldersMethods = mapActions('folders', [
-  'fetchTree', 'fetchFolders', 'fetchFolder', 'downloadFolder'
-])
+export const foldersMethods = mapActions('folders', ['fetchFolder', 'downloadFolder'])

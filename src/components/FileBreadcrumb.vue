@@ -5,12 +5,12 @@
         <md-button class="md-icon-button md-dense md-primary" @click="isExpanded = !isExpanded">
           <md-icon :class="{ expanded: isExpanded }">arrow_right</md-icon>
         </md-button>
-        <md-icon class="folder-icon" v-if="$store.state.folders.currentFolder.id === folder.id">folder_open</md-icon>
-        <md-icon class="folder-icon" v-if="$store.state.folders.currentFolder.id !== folder.id">folder</md-icon>
+        <md-icon class="folder-icon" v-if="$store.state.folders.folder.id === folder.id">folder_open</md-icon>
+        <md-icon class="folder-icon" v-if="$store.state.folders.folder.id !== folder.id">folder</md-icon>
         <span class="md-list-item-text" @click="open(folder.id)">{{ folder.name }}</span>
       </div>
 
-      <FileBreadcrumb v-for="(childFolder, index) in folder.all_children"
+      <FileBreadcrumb v-for="(childFolder, index) in folder.children"
         :folder="childFolder"
         :openFolder="openFolder"
         v-bind:key="index">
@@ -34,7 +34,7 @@ export default {
   methods: {
     open (folderId) {
       this.isExpanded = true
-      this.openFolder(folderId)
+      this.openFolder(folderId, true, true)
     }
   }
 }

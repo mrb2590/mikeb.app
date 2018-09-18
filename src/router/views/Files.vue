@@ -1,10 +1,10 @@
 <template>
   <div class="files">
     <transition name="slide-fade">
-      <BaseLoader v-if="!files || !folders"/>
+      <BaseLoader v-if="!folder"/>
     </transition>
     <transition name="slide-fade">
-      <div class="files-page" v-if="files && folders">
+      <div class="files-page" v-if="folder">
         <div class="files-sidebar">
           <FileBreadcrumb v-if="tree" :folder="tree" :openFolder="openFolder"></FileBreadcrumb>
         </div>
@@ -17,29 +17,29 @@
                 </md-button>
 
                 <md-button class="md-icon-button md-raised md-primary"
-                  @click="backFolder">
+                  @click="forwardFolder">
                   <md-icon>chevron_right</md-icon>
                 </md-button>
 
                 <md-button class="md-icon-button md-raised md-primary"
-                  @click="openFolder(currentFolder.parent_id)">
+                  @click="upFolder()">
                   <md-icon>expand_less</md-icon>
                 </md-button>
               </div>
             </div>
           </div>
           <div class="folders-area">
-            <h2 class="md-subheading">Folders</h2>
+            <h2 class="md-subheading">Folders in {{ folder.name }}</h2>
             <div class="md-layout md-gutter">
-              <div class="md-layout md-layout-item md-size-25 md-large-size-33 md-medium-size-50 md-small-size-100 md-xsmall-size-100" v-for="(folder, index) in folders" v-bind:key="index">
-                <div class="file-card" @dblclick="openFolder(folder.id)">
+              <div class="md-layout md-layout-item md-size-25 md-large-size-33 md-medium-size-50 md-small-size-100 md-xsmall-size-100" v-for="(childFolder, index) in folder.children" v-bind:key="index">
+                <div class="file-card" @dblclick="openFolder(childFolder.id, true, true)">
                   <md-card>
                     <md-card-header>
                       <div class="md-title">
                         <md-avatar class="md-avatar-icon md-large">
                           <md-icon>folder</md-icon>
                         </md-avatar>
-                        {{ folder.name }}
+                        {{ childFolder.name }}
                       </div>
                       <div class="md-subhead">
                         Folder
@@ -48,18 +48,18 @@
 
                     <md-card-content>
                       <ul class="md-block-1 info">
-                        <li>Created by {{ folder.created_by.first_name }} {{ folder.created_by.last_name }}</li>
-                        <li>Owned by {{ folder.owned_by.first_name }} {{ folder.owned_by.last_name }}</li>
-                        <li>Created {{ formattedDates(folder).created_at }}</li>
-                        <li>Last Modified {{ formattedDates(folder).updated_at }}</li>
+                        <li>Created by {{ childFolder.created_by.first_name }} {{ childFolder.created_by.last_name }}</li>
+                        <li>Owned by {{ childFolder.owned_by.first_name }} {{ childFolder.owned_by.last_name }}</li>
+                        <li>Created {{ formattedDates(childFolder).created_at }}</li>
+                        <li>Last Modified {{ formattedDates(childFolder).updated_at }}</li>
                       </ul>
                     </md-card-content>
 
                     <md-card-actions>
-                      <md-button class="md-icon-button md-raised md-accent" @click="downloadFolder(folder)">
+                      <md-button class="md-icon-button md-raised md-accent" @click="downloadFolder(childFolder)">
                         <md-icon>cloud_download</md-icon>
                       </md-button>
-                      <a href="#" v-bind:id="`folder_${folder.id}`" class="hidden-file-download"></a>
+                      <a href="#" v-bind:id="`folder_${childFolder.id}`" class="hidden-file-download"></a>
                     </md-card-actions>
                   </md-card>
                 </div>
@@ -67,9 +67,9 @@
             </div>
           </div>
           <div class="files-area">
-            <h2 class="md-subheading">Files</h2>
+            <h2 class="md-subheading">Files in {{ folder.name }}</h2>
             <div class="md-layout md-gutter">
-              <div class="md-layout md-layout-item md-size-25 md-large-size-33 md-medium-size-50 md-small-size-100 md-xsmall-size-100" v-for="(file, index) in files" v-bind:key="index">
+              <div class="md-layout md-layout-item md-size-25 md-large-size-33 md-medium-size-50 md-small-size-100 md-xsmall-size-100" v-for="(childFile, index) in folder.files" v-bind:key="index">
                 <div class="file-card">
                   <md-card>
                     <md-card-header>
@@ -77,27 +77,27 @@
                         <md-avatar class="md-avatar-icon md-large">
                           <md-icon>insert_drive_file</md-icon>
                         </md-avatar>
-                        {{ file.display_filename }}
+                        {{ childFile.display_filename }}
                       </div>
                       <div class="md-subhead">
-                        {{ file.extension.toUpperCase() }} File - {{ file.size_readable }}
+                        {{ childFile.extension.toUpperCase() }} File - {{ childFile.size_readable }}
                       </div>
                     </md-card-header>
 
                     <md-card-content>
                       <ul class="md-block-1 info">
-                        <li>Created by {{ file.created_by.first_name }} {{ file.created_by.last_name }}</li>
-                        <li>Owned by {{ file.owned_by.first_name }} {{ file.owned_by.last_name }}</li>
-                        <li>Uploaded {{ formattedDates(file).created_at }}</li>
-                        <li>Last Modified {{ formattedDates(file).updated_at }}</li>
+                        <li>Created by {{ childFile.created_by.first_name }} {{ childFile.created_by.last_name }}</li>
+                        <li>Owned by {{ childFile.owned_by.first_name }} {{ childFile.owned_by.last_name }}</li>
+                        <li>Uploaded {{ formattedDates(childFile).created_at }}</li>
+                        <li>Last Modified {{ formattedDates(childFile).updated_at }}</li>
                       </ul>
                     </md-card-content>
 
                     <md-card-actions>
-                      <md-button class="md-icon-button md-raised md-accent" @click="downloadFile(file)">
+                      <md-button class="md-icon-button md-raised md-accent" @click="downloadFile(childFile)">
                         <md-icon>cloud_download</md-icon>
                       </md-button>
-                      <a href="#" v-bind:id="`file_${file.id}`" class="hidden-file-download"></a>
+                      <a href="#" v-bind:id="`file_${childFile.id}`" class="hidden-file-download"></a>
                     </md-card-actions>
                   </md-card>
                 </div>
@@ -114,7 +114,7 @@
 import MainLayout from '@layouts/Main'
 import FileBreadcrumb from '@components/FileBreadcrumb'
 import {
-  userComputed, foldersComputed, foldersMethods, filesComputed, filesMethods
+  userComputed, foldersComputed, foldersMethods, filesMethods
 } from '@state/helpers'
 
 export default {
@@ -134,7 +134,7 @@ export default {
     return {
       history: {
         stack: [],
-        position: 0
+        backStack: []
       }
     }
   },
@@ -143,69 +143,49 @@ export default {
 
   computed: {
     ...userComputed,
-    ...filesComputed,
     ...foldersComputed
   },
 
   methods: {
-    ...filesMethods,
     ...foldersMethods,
-    openFolder: function (folderId, pushToHistory = true) {
-      if (!folderId) return
-      if (pushToHistory && folderId !== this.currentFolder.id) {
+    ...filesMethods,
+    openFolder: function (folderId, pushToHistory = true, resetBackStack = false) {
+      if (pushToHistory && folderId !== (this.folder || {}).id) {
         this.history.stack.push(folderId)
       }
-      let params = {
-        ownedById: this.userProfile.id,
-        parentId: folderId,
-        folderId: folderId,
-        page: 1,
-        limit: 25
+      if (resetBackStack) {
+        this.history.backStack = []
       }
       this.fetchFolder({
-        folderId: folderId,
-        setCurrent: true
+        folderId: folderId
       })
-      this.fetchFiles(params)
-      this.fetchFolders(params)
     },
     backFolder: function () {
-      if (this.history.stack.length === 1) {
+      if (this.history.stack.length <= 1) {
         return
       }
-      this.history.stack.pop()
+      this.history.backStack.push(this.history.stack.pop())
       let folderId = this.history.stack[this.history.stack.length - 1]
       this.openFolder(folderId, false)
     },
     forwardFolder: function () {
-    },
-    upFolder: function () {
-      if (this.parents) {
+      if (this.history.backStack.length <= 1) {
         return
       }
-      this.history.stack.pop()
-      let folderId = this.history.stack[this.history.stack.length - 1]
+      this.history.stack.push(this.history.backStack.pop())
+      let folderId = this.history.backStack[this.history.backStack.length - 1]
       this.openFolder(folderId, false)
+    },
+    upFolder: function () {
+      if (this.folder.parent_id) {
+        this.openFolder(this.folder.parent_id)
+      }
     }
   },
 
   created () {
     this.$emit('update:layout', MainLayout)
-    let params = {
-      ownedById: this.userProfile.id,
-      parentId: this.userProfile.folder_id,
-      page: 1,
-      limit: 25
-    }
-    this.fetchTree(this.userProfile.folder_id)
-    this.fetchFolder({
-      folderId: this.userProfile.folder_id,
-      setCurrent: true
-    })
-    this.fetchFiles(params)
-    this.fetchFolders(params).then(() => {
-      this.history.stack.push(this.userProfile.folder_id)
-    })
+    this.openFolder(this.userProfile.folder_id)
   }
 }
 </script>
