@@ -214,15 +214,27 @@ export default {
 .files {
   height: 100%;
 
+  .files-page {
+    width: 100%;
+    height: 100%;
+  }
+
   .files-sidebar {
-    width: 285px;
-    margin-right: 15px;
+    width: 284px;
+    margin-right: 16px;
     float: left;
+    height: 100%;
+
+    > .file-breadcrumb {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
   }
 
   .files-content {
     float: left;
     width: calc(100% - 300px);
+    height: 100%;
   }
 
   .md-headline {
@@ -273,6 +285,8 @@ export default {
     .files-sidebar {
       width: 100%;
       float: none;
+      height: auto;
+      padding-bottom: 16px;
     }
 
     .files-content {

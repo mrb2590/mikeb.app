@@ -2,9 +2,12 @@
   <md-list class="file-breadcrumb">
     <md-list-item v-if="folder">
       <div class="folder-name">
-        <md-icon v-if="$store.state.folders.currentFolder.id === folder.id">folder_open</md-icon>
-        <md-icon v-if="$store.state.folders.currentFolder.id !== folder.id">folder</md-icon>
-        <span class="md-list-item-text" @click="openFolder(folder.id)">{{ folder.name }}</span>
+        <md-button class="md-icon-button md-dense md-primary" @click="isExpanded = !isExpanded">
+          <md-icon :class="{ expanded: isExpanded }">arrow_right</md-icon>
+        </md-button>
+        <md-icon class="folder-icon" v-if="$store.state.folders.currentFolder.id === folder.id">folder_open</md-icon>
+        <md-icon class="folder-icon" v-if="$store.state.folders.currentFolder.id !== folder.id">folder</md-icon>
+        <span class="md-list-item-text" @click="open(folder.id)">{{ folder.name }}</span>
       </div>
 
       <FileBreadcrumb v-for="(childFolder, index) in folder.all_children"
@@ -20,7 +23,20 @@
 export default {
   name: 'FileBreadcrumb',
 
-  props: [ 'folder', 'openFolder' ]
+  props: [ 'folder', 'openFolder' ],
+
+  data () {
+    return {
+      isExpanded: false
+    }
+  },
+
+  methods: {
+    open (folderId) {
+      this.isExpanded = true
+      this.openFolder(folderId)
+    }
+  }
 }
 </script>
 
@@ -30,41 +46,57 @@ export default {
   flex-flow: unset;
   padding: 0;
   margin: 0;
+  height: 100%;
 
   .md-list-item-container {
     display: inline-flex;
 
     .md-list-item-content {
       display: inline-block;
-      padding-top: 6px;
-      padding-bottom: 0;
+      padding: 0 0 0 20px;
       min-height: auto;
 
       .folder-name {
         min-height: 24px;
 
-        .md-icon {
+        .md-button {
+          margin: 0;
+
+          .md-icon {
+            transition: all .4s;
+          }
+
+          .md-icon.expanded {
+            transform: rotate(90deg);
+          }
+        }
+
+        .folder-icon {
           margin-right: 4px;
+          position: relative;
+          top: 4px;
         }
 
         .md-list-item-text {
           display: inline-block;
           vertical-align: middle;
           cursor: pointer;
+          position: relative;
+          top: 6px;
         }
       }
     }
   }
 }
 
-.file-breadcrumb::before {
-  content: "";
-  position: absolute;
-  top: 30px;
-  left: 26px;
-  width: 1px;
-  background-color: var(--md-theme-default-accent, #ff5252);
-  height: calc(100% - 35px);
-  z-index: 3;
-}
+// .file-breadcrumb::before {
+//   content: "";
+//   position: absolute;
+//   top: 30px;
+//   left: 26px;
+//   width: 1px;
+//   background-color: var(--md-theme-default-accent, #ff5252);
+//   height: calc(100% - 35px);
+//   z-index: 3;
+// }
 </style>
