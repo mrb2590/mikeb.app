@@ -30,12 +30,14 @@ export const mutations = {
 }
 
 export const actions = {
-  updateTree ({ commit, state }, { folder }) {
-    if (state.tree && state.folder) {
-      searchTree(state.folder, folder, function (matchingFolder) {
-        matchingFolder = folder
-      })
-      commit('SET_TREE', state.tree)
+  updateTree ({ commit, state }, folder) {
+    if (state.tree && folder) {
+      let tempTree = JSON.parse(JSON.stringify(state.tree))
+      let foundFolder = searchTree(tempTree, folder)
+      if ((foundFolder.children || []).length === 0) {
+        foundFolder.children = folder.children
+      }
+      commit('SET_TREE', tempTree)
     } else {
       commit('SET_TREE', folder)
     }
@@ -45,14 +47,14 @@ export const actions = {
     return axios.get(`${apiUrl}/v1/folders/${folderId}/children`)
       .then(response => {
         commit('SET_FOLDER', response.data)
-        dispatch('updateTree', { folder: response.data })
+        dispatch('updateTree', response.data)
         return response.data
       })
-      .catch(error => {
-        commit('SET_FOLDER', null)
-        console.log('Could not fetch folders.')
-        console.log(error)
-      })
+      // .catch(error => {
+      //   commit('SET_FOLDER', null)
+      //   console.log('Could not fetch folders.')
+      //   console.log(error)
+      // })
   },
 
   downloadFolder ({ commit, state }, folder) {
@@ -78,16 +80,18 @@ export const actions = {
   }
 }
 
-function searchTree (folder, folderToFind, callback) {
+function searchTree (folder, folderToFind) {
+  console.log(folder.id)
+  console.log(folderToFind.id)
   if (folder.id === folderToFind.id) {
     return folder
-  } else if (folder.id != null) {
-    var result = null
-    for (var i = 0; result === null && i < folder.children.length; i++) {
-      result = searchTree(folder.children[i], folderToFind)
+  } else if (folder.children) {
+    for (var k in folder.children) {
+      if (folder.children[k].id === folderToFind.id) {
+        return folder.children[k]
+      } else if (folder.children.length) {
+        return searchTree(folder.children[k], folderToFind.id)
+      }
     }
-    callback(result)
-    return result
   }
-  return null
 }
