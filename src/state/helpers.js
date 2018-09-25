@@ -28,13 +28,10 @@ export const settingsComputed = {
 export const settingsMethods = mapActions('settings', ['setTheme'])
 
 export const filesComputed = {
-  ...mapState('files', {
-    files: state => state.files
-  }),
   ...mapGetters('files', ['formattedDates'])
 }
 
-export const filesMethods = mapActions('files', ['fetchFiles', 'downloadFile'])
+export const filesMethods = mapActions('files', ['downloadFile'])
 
 export const foldersComputed = {
   ...mapState('folders', {
@@ -44,4 +41,4 @@ export const foldersComputed = {
   ...mapGetters('folders', ['formattedDates'])
 }
 
-export const foldersMethods = mapActions('folders', ['fetchFolder', 'downloadFolder'])
+export const foldersMethods = mapActions('folders', ['fetchFolder', 'downloadFolder', 'addFolder'])

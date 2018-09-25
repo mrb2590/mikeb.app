@@ -116,7 +116,7 @@ export default {
       this.form.password = null
     },
 
-    signIn () {
+    submitForm () {
       this.sending = true
       this.sendingError = false
 
@@ -145,7 +145,7 @@ export default {
       this.$v.$touch()
 
       if (!this.$v.$invalid) {
-        this.signIn()
+        this.submitForm()
       }
     }
   },

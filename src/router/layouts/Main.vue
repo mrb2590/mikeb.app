@@ -101,6 +101,11 @@
         </transition>
       </md-app-content>
     </md-app>
+
+    <md-snackbar :md-position="snackbarPosition" :md-duration="snackbarDuration" :md-active.sync="showSnackbar" md-persistent>
+      <span>There was an error!</span>
+      <md-button class="md-primary" @click="showSnackbar = false">Retry</md-button>
+    </md-snackbar>
   </div>
 </template>
 
@@ -113,12 +118,23 @@ export default {
 
   data: () => ({
     show: false, // For showing the animation on intial page load
-    menuVisible: false
+    menuVisible: false,
+    snackbarPosition: 'center',
+    snackbarDuration: Infinity
   }),
 
   computed: {
     ...authComputed,
     ...userComputed,
+    showSnackbar: {
+      get () {
+        return this.$store.state.app.showSnackbar
+      },
+      set (value) {
+        this.$store.commit('app/showSnackbar', value)
+        return value
+      }
+    },
     darkMode: {
       get () {
         return this.$store.state.settings.theme === 'dark'

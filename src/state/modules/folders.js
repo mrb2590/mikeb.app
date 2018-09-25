@@ -24,37 +24,53 @@ export const mutations = {
   SET_FOLDER (state, newValue) {
     state.folder = newValue
   },
+  ADD_CHILD_FOLDER (state, folder) {
+    let parent = searchTree(state.tree, state.folder.id)
+    if (parent) {
+      if (!parent.children) parent.children = []
+      parent.children.push(folder)
+    }
+  },
   SET_TREE (state, newValue) {
     state.tree = newValue
+  },
+  ADD_FOLDER_TO_TREE (state, folder) {
+    let foundFolder = searchTree(state.tree, folder.id)
+    if ((foundFolder.children || []).length < 1) {
+      foundFolder.children = folder.children
+    }
   }
 }
 
 export const actions = {
   updateTree ({ commit, state }, folder) {
     if (state.tree && folder) {
-      let tempTree = JSON.parse(JSON.stringify(state.tree))
-      let foundFolder = searchTree(tempTree, folder)
-      if ((foundFolder.children || []).length === 0) {
-        foundFolder.children = folder.children
-      }
-      commit('SET_TREE', tempTree)
+      commit('ADD_FOLDER_TO_TREE', folder)
     } else {
       commit('SET_TREE', folder)
     }
   },
 
-  fetchFolder ({ commit, dispatch }, { folderId }) {
+  fetchFolder ({ commit, state, dispatch }, { folderId, force = false }) {
+    // Search tree first for cached folder
+    if (!force) {
+      let folder = searchTree(state.tree, folderId)
+      if (folder.children) {
+        commit('SET_FOLDER', folder)
+        return Promise.resolve(folder)
+      }
+    }
     return axios.get(`${apiUrl}/v1/folders/${folderId}/children`)
       .then(response => {
         commit('SET_FOLDER', response.data)
         dispatch('updateTree', response.data)
         return response.data
       })
-      // .catch(error => {
-      //   commit('SET_FOLDER', null)
-      //   console.log('Could not fetch folders.')
-      //   console.log(error)
-      // })
+      .catch(error => {
+        commit('SET_FOLDER', null)
+        console.log('Could not fetch folders.')
+        console.log(error)
+      })
   },
 
   downloadFolder ({ commit, state }, folder) {
@@ -77,21 +93,34 @@ export const actions = {
         console.log('Could not download folder.')
         console.log(error)
       })
+  },
+
+  addFolder ({ commit, state }, { name = null, parentId = null }) {
+    return axios.post(`${apiUrl}/v1/folders`, {
+      name: name,
+      parent_id: parentId
+    })
+      .then(response => {
+        commit('ADD_CHILD_FOLDER', response.data)
+      })
+      .catch(error => {
+        this.commit('app/SET_SHOWSNACKBAR', true)
+        console.log('Could not add folder.')
+        console.log(error)
+      })
   }
 }
 
-function searchTree (folder, folderToFind) {
-  console.log(folder.id)
-  console.log(folderToFind.id)
-  if (folder.id === folderToFind.id) {
+let searchTree = (folder, folderToFindId) => {
+  if (!folder) return false
+  if (folder.id === folderToFindId) {
     return folder
-  } else if (folder.children) {
-    for (var k in folder.children) {
-      if (folder.children[k].id === folderToFind.id) {
-        return folder.children[k]
-      } else if (folder.children.length) {
-        return searchTree(folder.children[k], folderToFind.id)
-      }
+  }
+  if (folder.children) {
+    for (let i in folder.children) {
+      let result = searchTree(folder.children[i], folderToFindId)
+      if (result) return result
     }
   }
+  return false
 }
