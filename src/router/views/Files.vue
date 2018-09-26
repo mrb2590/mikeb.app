@@ -8,10 +8,15 @@
         <div class="files-sidebar">
           <md-content class="md-scrollbar">
             <FileBreadcrumb v-if="tree" :folder="tree" :openFolder="openFolder"></FileBreadcrumb>
+            <div class="server-info">
+              <div>Total Storage: {{ folder.server.storage.total.readable }}</div>
+              <div>Used Storage: {{ folder.server.storage.used.readable }}</div>
+              <div>Free Storage: {{ folder.server.storage.free.readable }}</div>
+            </div>
           </md-content>
         </div>
         <div class="files-content">
-          <md-toolbar>
+          <md-toolbar md-elevation="0">
             <h3 class="md-title" style="flex: 1">{{ folder.name }}</h3>
 
             <div class="md-toolbar-section-end">
@@ -39,7 +44,7 @@
               </md-button>
 
               <md-button class="md-icon-button md-raised md-primary"
-                @click="addFolderVisible = !addFolderVisible">
+                @click="showAddFolderDialog = true">
                 <md-icon>create_new_folder</md-icon>
               </md-button>
             </div>
@@ -81,7 +86,6 @@
                     </md-card>
                   </div>
                 </div>
-                <AddFolderForm v-if="addFolderVisible"/>
               </div>
             </div>
             <div class="files-area">
@@ -94,6 +98,7 @@
         </div>
       </div>
     </transition>
+    <AddFolderForm @showAddFolderDialog="setShowAddFolderDialog"/>
   </div>
 </template>
 
@@ -119,15 +124,13 @@ export default {
     ]
   },
 
-  data () {
-    return {
-      history: {
-        stack: [],
-        backStack: []
-      },
-      addFolderVisible: false
-    }
-  },
+  data: () => ({
+    history: {
+      stack: [],
+      backStack: []
+    },
+    showAddFolderDialog: false
+  }),
 
   components: { FileBreadcrumb, AddFolderForm, File },
 
@@ -137,6 +140,9 @@ export default {
   },
 
   methods: {
+    setShowAddFolderDialog (value) {
+      this.showAddFolderDialog = value
+    },
     ...foldersMethods,
     openFolder: function (folderId, pushToHistory = true, resetBackStack = false, force = false) {
       if (pushToHistory && folderId !== (this.folder || {}).id) {
@@ -205,6 +211,17 @@ export default {
     .md-content {
       height: 100%;
       overflow: auto;
+      position: relative;
+
+      .server-info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        z-index: 10;
+        background: inherit;
+        padding: 16px;
+        width: 100%;
+      }
     }
   }
 
@@ -233,10 +250,9 @@ export default {
 
   .folders-area,
   .files-area {
-    margin-right: 10px;
-    min-height: 343px;
+    width: 99%;
+    padding: 16px;
   }
-
 }
 
 @media (max-width: 600px) {

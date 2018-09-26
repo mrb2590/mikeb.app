@@ -2,7 +2,7 @@
   <md-list class="file-breadcrumb">
     <md-list-item v-if="folder">
       <div class="folder-name">
-        <md-button class="md-icon-button md-dense md-primary" @click="isExpanded = !isExpanded">
+        <md-button class="md-icon-button md-dense md-primary" @click="expandFolder">
           <md-icon :class="{ expanded: isExpanded }">arrow_right</md-icon>
         </md-button>
         <md-icon class="folder-icon" v-if="$store.state.folders.folder.id === folder.id">folder_open</md-icon>
@@ -13,7 +13,8 @@
       <FileBreadcrumb v-for="(childFolder, index) in folder.children"
         :folder="childFolder"
         :openFolder="openFolder"
-        v-bind:key="index">
+        v-bind:key="index"
+        v-if="isExpanded">
       </FileBreadcrumb>
     </md-list-item>
   </md-list>
@@ -35,6 +36,13 @@ export default {
     open (folderId) {
       this.isExpanded = true
       this.openFolder(folderId, true, true)
+    },
+    expandFolder () {
+      this.$store.dispatch('folders/fetchFolder', {
+        folderId: this.folder.id,
+        setCurrent: false
+      })
+      this.isExpanded = !this.isExpanded
     }
   }
 }

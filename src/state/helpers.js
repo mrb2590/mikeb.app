@@ -41,4 +41,6 @@ export const foldersComputed = {
   ...mapGetters('folders', ['formattedDates'])
 }
 
-export const foldersMethods = mapActions('folders', ['fetchFolder', 'downloadFolder', 'addFolder'])
+export const foldersMethods = mapActions('folders', [
+  'updateTree', 'fetchFolder', 'downloadFolder', 'addFolder'
+])

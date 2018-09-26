@@ -1,38 +1,28 @@
 <template>
-  <div class="md-layout md-layout-item md-size-25 md-large-size-33 md-medium-size-50 md-small-size-100 md-xsmall-size-100">
-    <div class="file-card">
-      <form class="add-folder-form" novalidate @submit.prevent="validateForm">
-        <md-card>
-          <md-card-header>
-            <div class="md-title">
-              <md-avatar class="md-avatar-icon md-large">
-                <md-icon>create_new_folder</md-icon>
-              </md-avatar>
-              <md-field :class="getValidationClass('folderName')">
-                <label for="folder-name">Name</label>
-                <md-input name="folder-name" id="folder-name" v-model="form.folderName" :disabled="sending"/>
-                <span class="md-error" v-if="!$v.form.folderName.required">The folder name is required</span>
-              </md-field>
-            </div>
-          </md-card-header>
-
-          <md-card-actions>
-            <md-button type="submit" class="md-icon-button md-raised md-primary" :disabled="sending">
-              <md-icon>add</md-icon>
-            </md-button>
-          </md-card-actions>
-        </md-card>
-      </form>
-    </div>
+  <div class="add-folder-dialog">
+    <md-dialog :md-active.sync="$parent.showAddFolderDialog">
+      <md-dialog-title>Add Folder</md-dialog-title>
+      <md-content>
+        <form class="add-folder-form" novalidate @submit.prevent="validateForm">
+          <md-field :class="getValidationClass('folderName')">
+            <label for="folder-name">Name</label>
+            <md-input name="folder-name" id="folder-name" v-model="form.folderName" :disabled="sending"/>
+            <span class="md-error" v-if="!$v.form.folderName.required">The folder name is required</span>
+          </md-field>
+        </form>
+      </md-content>
+      <md-dialog-actions>
+        <md-button class="md-primary" @click="closeDialog">Close</md-button>
+        <md-button @click="validateForm" class="md-raised md-primary" :disabled="sending">Save</md-button>
+      </md-dialog-actions>
+    </md-dialog>
   </div>
 </template>
 
 <script>
 import { foldersMethods, foldersComputed } from '@state/helpers'
 import { validationMixin } from 'vuelidate'
-import {
-  required
-} from 'vuelidate/lib/validators'
+import { required } from 'vuelidate/lib/validators'
 
 export default {
   name: 'AddFolderForm',
@@ -40,6 +30,8 @@ export default {
   computed: {
     ...foldersComputed
   },
+
+  props: [ 'showAddFolderDialog' ],
 
   mixins: [validationMixin],
 
@@ -60,6 +52,9 @@ export default {
   },
 
   methods: {
+    closeDialog () {
+      this.$emit('showAddFolderDialog', false)
+    },
     ...foldersMethods,
     getValidationClass (fieldName) {
       const field = this.$v.form[fieldName]
@@ -87,7 +82,7 @@ export default {
         .then(token => {
           this.sending = false
           this.clearForm()
-          console.log('Folder added')
+          this.closeDialog()
         })
     },
 
@@ -102,8 +97,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .md-field {
-    width: auto;
-    margin-right: 0;
+  .md-content {
+    flex: 1;
+    padding-left: 24px;
+    padding-right: 24px;
   }
 </style>

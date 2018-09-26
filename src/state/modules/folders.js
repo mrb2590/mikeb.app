@@ -1,6 +1,7 @@
 import axios from 'axios'
 import moment from 'moment'
 import { b64toBlob } from '@state/functions'
+import lang from 'lodash/lang'
 
 var apiUrl = process.env.VUE_APP_API_URL
 
@@ -18,27 +19,38 @@ export const getters = {
       }
     }
   }
+  // sortByKey (sortable = [], key = 'name') {
+  //   return sortable.sort((a, b) => {
+  //     return a[key].localeCompare(b[key], 'en', {
+  //       numeric: true,
+  //       sensitivity: 'base'
+  //     })
+  //   })
+  // }
 }
 
 export const mutations = {
   SET_FOLDER (state, newValue) {
-    state.folder = newValue
+    state.folder = lang.cloneDeep(newValue)
+    // if (newValue) {
+    //   state.folder.children = getters.sortByKey(newValue.children, 'name')
+    //   state.folder.files = getters.sortByKey(newValue.files, 'display_filename')
+    // }
   },
   ADD_CHILD_FOLDER (state, folder) {
+    state.folder.children.push(lang.cloneDeep(folder))
     let parent = searchTree(state.tree, state.folder.id)
-    if (parent) {
-      if (!parent.children) parent.children = []
-      parent.children.push(folder)
-    }
+    if (parent) parent.children.push(lang.cloneDeep(folder))
+    // parent.children = getters.sortByKey(parent.children, 'name')
   },
   SET_TREE (state, newValue) {
-    state.tree = newValue
+    state.tree = lang.cloneDeep(newValue)
   },
   ADD_FOLDER_TO_TREE (state, folder) {
     let foundFolder = searchTree(state.tree, folder.id)
-    if ((foundFolder.children || []).length < 1) {
-      foundFolder.children = folder.children
-    }
+    foundFolder.children = folder.children
+    state.tree = lang.cloneDeep(state.tree)
+    // foundFolder.children = getters.sortByKey(foundFolder.children, 'name')
   }
 }
 
@@ -51,23 +63,23 @@ export const actions = {
     }
   },
 
-  fetchFolder ({ commit, state, dispatch }, { folderId, force = false }) {
+  fetchFolder ({ commit, state, dispatch }, { folderId, force = false, setCurrent = true }) {
     // Search tree first for cached folder
     if (!force) {
       let folder = searchTree(state.tree, folderId)
       if (folder.children) {
-        commit('SET_FOLDER', folder)
+        if (setCurrent) commit('SET_FOLDER', folder)
         return Promise.resolve(folder)
       }
     }
     return axios.get(`${apiUrl}/v1/folders/${folderId}/children`)
       .then(response => {
-        commit('SET_FOLDER', response.data)
+        if (setCurrent) commit('SET_FOLDER', response.data)
         dispatch('updateTree', response.data)
         return response.data
       })
       .catch(error => {
-        commit('SET_FOLDER', null)
+        if (setCurrent) commit('SET_FOLDER', null)
         console.log('Could not fetch folders.')
         console.log(error)
       })
@@ -102,6 +114,7 @@ export const actions = {
     })
       .then(response => {
         commit('ADD_CHILD_FOLDER', response.data)
+        commit('ADD_FOLDER_TO_TREE', response.data)
       })
       .catch(error => {
         this.commit('app/SET_SHOWSNACKBAR', true)
