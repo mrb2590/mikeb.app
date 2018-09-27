@@ -11,13 +11,8 @@ export const state = {
 }
 
 export const getters = {
-  formattedDates: (state) => (folder) => {
-    if (state.folder) {
-      return {
-        created_at: moment(folder.created_at).format('MMMM Do, YYYY'),
-        updated_at: moment(folder.updated_at).format('MMMM Do, YYYY')
-      }
-    }
+  formatDate: (state) => (date) => {
+    return moment(date).format('MMMM Do, YYYY')
   }
   // sortByKey (sortable = [], key = 'name') {
   //   return sortable.sort((a, b) => {
@@ -85,7 +80,7 @@ export const actions = {
       })
   },
 
-  downloadFolder ({ commit, state }, folder) {
+  downloadFolder (folder) {
     return axios.get(`${apiUrl}/v1/folders/${folder.id}/download`, {
       params: {
         _: +new Date(),
@@ -107,7 +102,29 @@ export const actions = {
       })
   },
 
-  addFolder ({ commit, state }, { name = null, parentId = null }) {
+  downloadFile (file) {
+    return axios.get(`${apiUrl}/v1/files/${file.id}/download`, {
+      params: {
+        _: +new Date(),
+        encoded: 1
+      }
+    })
+      .then(response => {
+        let anchor = document.getElementById(`file_${file.id}`)
+        let blob = b64toBlob(response.data.file, file.mime_type)
+        let windowUrl = window.URL || window.webkitURL
+        let url = windowUrl.createObjectURL(blob)
+        anchor.setAttribute('href', url)
+        anchor.setAttribute('download', response.data.filename)
+        anchor.click()
+      })
+      .catch(error => {
+        console.log('Could not download file.')
+        console.log(error)
+      })
+  },
+
+  addFolder ({ commit }, { name = null, parentId = null }) {
     return axios.post(`${apiUrl}/v1/folders`, {
       name: name,
       parent_id: parentId

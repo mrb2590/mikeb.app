@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { foldersMethods, foldersComputed } from '@state/helpers'
+import { folderMethods, folderComputed } from '@state/helpers'
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 
@@ -28,7 +28,7 @@ export default {
   name: 'AddFolderForm',
 
   computed: {
-    ...foldersComputed
+    ...folderComputed
   },
 
   props: [ 'showAddFolderDialog' ],
@@ -52,10 +52,10 @@ export default {
   },
 
   methods: {
+    ...folderMethods,
     closeDialog () {
       this.$emit('showAddFolderDialog', false)
     },
-    ...foldersMethods,
     getValidationClass (fieldName) {
       const field = this.$v.form[fieldName]
 

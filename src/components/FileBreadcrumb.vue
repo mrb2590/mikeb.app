@@ -5,8 +5,8 @@
         <md-button class="md-icon-button md-dense md-primary" @click="expandFolder">
           <md-icon :class="{ expanded: isExpanded }">arrow_right</md-icon>
         </md-button>
-        <md-icon class="folder-icon" v-if="$store.state.folders.folder.id === folder.id">folder_open</md-icon>
-        <md-icon class="folder-icon" v-if="$store.state.folders.folder.id !== folder.id">folder</md-icon>
+        <md-icon class="folder-icon" v-if="$store.state.folder.folder.id === folder.id">folder_open</md-icon>
+        <md-icon class="folder-icon" v-if="$store.state.folder.folder.id !== folder.id">folder</md-icon>
         <span class="md-list-item-text" @click="open(folder.id)">{{ folder.name }}</span>
       </div>
 
@@ -38,7 +38,7 @@ export default {
       this.openFolder(folderId, true, true)
     },
     expandFolder () {
-      this.$store.dispatch('folders/fetchFolder', {
+      this.$store.dispatch('folder/fetchFolder', {
         folderId: this.folder.id,
         setCurrent: false
       })

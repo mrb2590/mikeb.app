@@ -18,8 +18,8 @@
           <ul class="md-block-1 info">
             <li>Created by {{ file.created_by.first_name }} {{ file.created_by.last_name }}</li>
             <li>Owned by {{ file.owned_by.first_name }} {{ file.owned_by.last_name }}</li>
-            <li>Uploaded {{ formattedDates(file).created_at }}</li>
-            <li>Last Modified {{ formattedDates(file).updated_at }}</li>
+            <li>Uploaded {{ formatDate(file.created_at) }}</li>
+            <li>Last Modified {{ formatDate(file.updated_at) }}</li>
           </ul>
         </md-card-content>
 
@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { filesMethods, filesComputed } from '@state/helpers'
+import { folderComputed, folderMethods } from '@state/helpers'
 
 export default {
   name: 'File',
@@ -43,11 +43,11 @@ export default {
   props: [ 'file' ],
 
   computed: {
-    ...filesComputed
+    ...folderComputed
   },
 
   methods: {
-    ...filesMethods
+    ...folderMethods
   }
 }
 </script>

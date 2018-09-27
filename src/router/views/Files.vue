@@ -8,11 +8,6 @@
         <div class="files-sidebar">
           <md-content class="md-scrollbar">
             <FileBreadcrumb v-if="tree" :folder="tree" :openFolder="openFolder"></FileBreadcrumb>
-            <div class="server-info">
-              <div>Total Storage: {{ folder.server.storage.total.readable }}</div>
-              <div>Used Storage: {{ folder.server.storage.used.readable }}</div>
-              <div>Free Storage: {{ folder.server.storage.free.readable }}</div>
-            </div>
           </md-content>
         </div>
         <div class="files-content">
@@ -47,6 +42,11 @@
                 @click="showAddFolderDialog = true">
                 <md-icon>create_new_folder</md-icon>
               </md-button>
+
+              <md-button class="md-icon-button md-raised md-primary"
+                @click="showServerInfo = true">
+                <md-icon>info</md-icon>
+              </md-button>
             </div>
           </md-toolbar>
           <md-content class="md-scrollbar">
@@ -72,8 +72,8 @@
                         <ul class="md-block-1 info">
                           <li>Created by {{ childFolder.created_by.first_name }} {{ childFolder.created_by.last_name }}</li>
                           <li>Owned by {{ childFolder.owned_by.first_name }} {{ childFolder.owned_by.last_name }}</li>
-                          <li>Created {{ formattedDates(childFolder).created_at }}</li>
-                          <li>Last Modified {{ formattedDates(childFolder).updated_at }}</li>
+                          <li>Created {{ formatDate(childFolder.created_at) }}</li>
+                          <li>Last Modified {{ formatDate(childFolder.updated_at) }}</li>
                         </ul>
                       </md-card-content>
 
@@ -98,7 +98,23 @@
         </div>
       </div>
     </transition>
+
     <AddFolderForm @showAddFolderDialog="setShowAddFolderDialog"/>
+
+    <md-dialog :md-active.sync="showServerInfo">
+      <md-dialog-title>Server Info</md-dialog-title>
+      <md-content>
+        <ul v-if="folder">
+          <li>Total Storage: {{ folder.server.storage.total.readable }}</li>
+          <li>Used Storage: {{ folder.server.storage.used.readable }}</li>
+          <li>Free Storage: {{ folder.server.storage.free.readable }}</li>
+        </ul>
+      </md-content>
+      <md-dialog-actions>
+        <md-button class="md-primary" @click="showServerInfo = false">Close</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+
   </div>
 </template>
 
@@ -108,7 +124,7 @@ import FileBreadcrumb from '@components/FileBreadcrumb'
 import AddFolderForm from '@components/AddFolderForm'
 import File from '@components/File'
 import {
-  userComputed, foldersComputed, foldersMethods
+  userComputed, folderComputed, folderMethods
 } from '@state/helpers'
 
 export default {
@@ -129,21 +145,22 @@ export default {
       stack: [],
       backStack: []
     },
-    showAddFolderDialog: false
+    showAddFolderDialog: false,
+    showServerInfo: false
   }),
 
   components: { FileBreadcrumb, AddFolderForm, File },
 
   computed: {
     ...userComputed,
-    ...foldersComputed
+    ...folderComputed
   },
 
   methods: {
+    ...folderMethods,
     setShowAddFolderDialog (value) {
       this.showAddFolderDialog = value
     },
-    ...foldersMethods,
     openFolder: function (folderId, pushToHistory = true, resetBackStack = false, force = false) {
       if (pushToHistory && folderId !== (this.folder || {}).id) {
         this.history.stack.push(folderId)
@@ -188,6 +205,12 @@ export default {
 }
 </script>
 
+<style lang="scss">
+.files .files-sidebar > .md-content > .md-list > .md-list-item > .md-list-item-container > .md-list-item-content {
+  padding-left: 0;
+}
+</style>
+
 <style lang="scss" scoped>
 .files {
   height: 100%;
@@ -212,16 +235,6 @@ export default {
       height: 100%;
       overflow: auto;
       position: relative;
-
-      .server-info {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        z-index: 10;
-        background: inherit;
-        padding: 16px;
-        width: 100%;
-      }
     }
   }
 
